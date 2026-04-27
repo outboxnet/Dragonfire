@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /d/Poller/*.slnx)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet pack:*)"
+    ]
+  }
+}

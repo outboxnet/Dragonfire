@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PackageId>Dragonfire.Logging</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Dragonfire</Authors>
+    <Description>Core structured logging for .NET — service-layer interception via ILoggable, sensitive-data redaction, and a flexible log pipeline. Framework-agnostic; use Dragonfire.Logging.AspNetCore for HTTP request/response logging.</Description>
+    <PackageTags>logging;structured-logging;interceptor;scrutor;castle;iloggable</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/dragonfire/logging</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- No FrameworkReference — core is ASP.NET-free.
+         No Castle.Core / Castle.Core.AsyncInterceptor / Scrutor — decoration uses
+         the built-in System.Reflection.DispatchProxy with a hand-rolled Decorate helper. -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interceptors\" />
+  </ItemGroup>
+
+</Project>

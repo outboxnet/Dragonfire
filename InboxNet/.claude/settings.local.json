@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(grep -v \"obj\\\\\\\\\")",
+      "Bash(wc -l /d/OutboxNet/src/OutboxNet.EntityFrameworkCore/Stores/*.cs /d/OutboxNet/src/OutboxNet.SqlServer/Stores/*.cs)",
+      "Bash(dotnet ef:*)",
+      "Bash(sqlcmd -S \"\\(localdb\\)\\\\mssqllocaldb\" -Q \"CREATE DATABASE [TestDB] ON PRIMARY \\(NAME='TestDB', FILENAME='C:\\\\Users\\\\Gihun\\\\TestDB.mdf'\\) LOG ON \\(NAME='TestDB_log', FILENAME='C:\\\\Users\\\\Gihun\\\\TestDB_log.ldf'\\)\")",
+      "Bash(powershell.exe -Command \"sqllocaldb info mssqllocaldb\")",
+      "Bash(powershell.exe -Command ':*)",
+      "Bash(xargs grep:*)",
+      "Bash(find . -not -path './.vs/*' -not -path '*/bin/*' -not -path '*/obj/*' -type f \\\\\\( -name \"*.cs\" -o -name \"*.csproj\" -o -name \"*.slnx\" -o -name \"*.props\" -o -name \"*.md\" -o -name \"*.json\" -o -name \"*.yml\" -o -name \"*.yaml\" -o -name \"*.txt\" \\\\\\) -exec sed -i 's/OutboxNet/InboxNet/g' {} \\\\;)",
+      "Bash(find . -not -path './.vs/*' -not -path '*/bin/*' -not -path '*/obj/*' -type f \\\\\\( -name \"*.cs\" -o -name \"*.csproj\" -o -name \"*.slnx\" -o -name \"*.props\" -o -name \"*.md\" -o -name \"*.json\" -o -name \"*.yml\" -o -name \"*.yaml\" -o -name \"*.txt\" \\\\\\) -exec sed -i 's/InboxNet\\\\.Inbox\\\\./InboxNet./g' {} \\\\;)",
+      "Bash(dotnet run:*)",
+      "Bash(find src *)"
+    ]
+  }
+}

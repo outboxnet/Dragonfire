@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\OutboxNet.AzureStorageQueue\OutboxNet.AzureStorageQueue.csproj" />
+    <ProjectReference Include="..\src\OutboxNet.Core\OutboxNet.Core.csproj" />
+    <ProjectReference Include="..\src\OutboxNet.Delivery\OutboxNet.Delivery.csproj" />
+    <ProjectReference Include="..\src\OutboxNet.EntityFrameworkCore\OutboxNet.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\src\OutboxNet.Processor\OutboxNet.Processor.csproj" />
+    <ProjectReference Include="..\src\OutboxNet.SqlServer\OutboxNet.SqlServer.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,76 @@
+name: Publish to NuGet
+
+on:
+  release:
+    types: [ published ]   # trigger when a GitHub Release is published
+  workflow_dispatch:        # allow manual runs from the Actions tab
+    inputs:
+      version:
+        description: 'Package version to publish (e.g. 1.2.3)'
+        required: true
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  publish:
+    name: Pack & Push to NuGet.org
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Derive the version: prefer the release tag (strip leading 'v'), else the manual input.
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"          # strip leading 'v'
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore Poller/Poller.csproj
+
+      - name: Build
+        run: >
+          dotnet build Poller/Poller.csproj
+          --no-restore
+          --configuration Release
+          -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack
+        run: >
+          dotnet pack Poller/Poller.csproj
+          --no-build
+          --configuration Release
+          -p:Version=${{ steps.version.outputs.version }}
+          --output ./nupkg
+
+      - name: Push to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: >
+          dotnet nuget push ./nupkg/*.nupkg
+          --api-key "$NUGET_API_KEY"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg-${{ steps.version.outputs.version }}
+          path: ./nupkg/*.nupkg

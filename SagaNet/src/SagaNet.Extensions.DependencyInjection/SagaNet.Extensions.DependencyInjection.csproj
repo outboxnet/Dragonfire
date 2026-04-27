@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>SagaNet.Extensions.DependencyInjection</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Microsoft.Extensions.DependencyInjection integration for SagaNet.</Description>
+    <PackageTags>saga;workflow;dependencyinjection;aspnetcore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SagaNet.Core\SagaNet.Core.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+  </ItemGroup>
+
+</Project>

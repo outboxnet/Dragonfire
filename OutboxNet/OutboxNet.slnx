@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="OutboxNet.SampleApp/OutboxNet.SampleApp.csproj" Id="eee5f658-8c5b-48ba-a9d5-0d4244991765" />
+    <Project Path="src/OutboxNet.AzureFunctions/OutboxNet.AzureFunctions.csproj" />
+    <Project Path="src/OutboxNet.AzureStorageQueue/OutboxNet.AzureStorageQueue.csproj" />
+    <Project Path="src/OutboxNet.Core/OutboxNet.Core.csproj" />
+    <Project Path="src/OutboxNet.Delivery/OutboxNet.Delivery.csproj" />
+    <Project Path="src/OutboxNet.EntityFrameworkCore/OutboxNet.EntityFrameworkCore.csproj" />
+    <Project Path="src/OutboxNet.Processor/OutboxNet.Processor.csproj" />
+    <Project Path="src/OutboxNet.SqlServer/OutboxNet.SqlServer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OutboxNet.Core.Tests/OutboxNet.Core.Tests.csproj" />
+    <Project Path="tests/OutboxNet.Delivery.Tests/OutboxNet.Delivery.Tests.csproj" />
+    <Project Path="tests/OutboxNet.LoadTests/OutboxNet.LoadTests.csproj" />
+    <Project Path="tests/OutboxNet.Processor.Tests/OutboxNet.Processor.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>InboxNet.AspNetCore</RootNamespace>
+    <Description>ASP.NET Core webhook receive endpoints for the InboxNet inbox — parses, validates, and persists incoming provider webhooks</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\InboxNet.Core\InboxNet.Core.csproj" />
+  </ItemGroup>
+</Project>

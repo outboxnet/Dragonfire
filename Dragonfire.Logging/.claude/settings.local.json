@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /d/Dragonfire.Logging/*.md)",
+      "Bash(dotnet build:*)",
+      "Bash(cp Abstractions/ILoggable.cs src/Dragonfire.Logging/Abstractions/)",
+      "Bash(cp Attributes/LogAttribute.cs Attributes/LogIgnoreAttribute.cs src/Dragonfire.Logging/Attributes/)",
+      "Bash(cp Configuration/DragonfireLoggingOptions.cs src/Dragonfire.Logging/Configuration/)",
+      "Bash(cp Models/LogEntry.cs Models/LoggingContext.cs Models/SensitiveDataPolicy.cs src/Dragonfire.Logging/Models/)",
+      "Bash(cp Services/IDragonfireLoggingService.cs Services/DragonfireLoggingService.cs Services/ILogFilterService.cs Services/LogFilterService.cs src/Dragonfire.Logging/Services/)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(ls \"D:/Dragonfire.Logging/\"*.sln)",
+      "Bash(dotnet list:*)",
+      "Bash(mkdir -p tests/Dragonfire.Logging.Generator.Tests)",
+      "Bash(dotnet clean:*)"
+    ]
+  }
+}

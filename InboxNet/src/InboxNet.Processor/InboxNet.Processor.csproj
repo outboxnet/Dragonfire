@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>InboxNet.Processor</RootNamespace>
+    <Description>Background dispatch service for InboxNet inbox messages — runs registered handlers sequentially per entity</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InboxNet.Core\InboxNet.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+  </ItemGroup>
+</Project>

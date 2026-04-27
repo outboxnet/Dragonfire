@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Dragonfire.Caching.Distributed</PackageId>
+    <Version>3.0.0</Version>
+    <Description>Distributed cache provider for Dragonfire.Caching. Works with any IDistributedCache backend (Redis, SQL Server, etc.).</Description>
+    <PackageTags>caching;cache;distributed;redis;dotnet</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Caching\Dragonfire.Caching.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<None Include="../../README.md" Pack="true" PackagePath="/" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(grep -v \"obj\\\\\\\\\")",
+      "Bash(wc -l /d/OutboxNet/src/OutboxNet.EntityFrameworkCore/Stores/*.cs /d/OutboxNet/src/OutboxNet.SqlServer/Stores/*.cs)",
+      "Bash(dotnet ef:*)",
+      "Bash(sqlcmd -S \"\\(localdb\\)\\\\mssqllocaldb\" -Q \"CREATE DATABASE [TestDB] ON PRIMARY \\(NAME='TestDB', FILENAME='C:\\\\Users\\\\Gihun\\\\TestDB.mdf'\\) LOG ON \\(NAME='TestDB_log', FILENAME='C:\\\\Users\\\\Gihun\\\\TestDB_log.ldf'\\)\")",
+      "Bash(powershell.exe -Command \"sqllocaldb info mssqllocaldb\")",
+      "Bash(powershell.exe -Command ':*)"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="SampleApp/SampleApp.csproj" Id="b059563e-4973-41e6-a40d-ac7bbe9d4bc9" />
+    <Project Path="src/Dragonfire.Logging.ApplicationInsights/Dragonfire.Logging.ApplicationInsights.csproj" />
+    <Project Path="src/Dragonfire.Logging.AspNetCore/Dragonfire.Logging.AspNetCore.csproj" />
+    <Project Path="src/Dragonfire.Logging.Generator/Dragonfire.Logging.Generator.csproj" />
+    <Project Path="src/Dragonfire.Logging/Dragonfire.Logging.csproj" />
+  </Folder>
+</Solution>

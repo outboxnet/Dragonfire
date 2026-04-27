@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version)",
+      "Bash(dotnet --list-sdks)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet pack:*)",
+      "Bash(unzip -l src/SyncLib.Abstractions/bin/Release/SyncLib.Abstractions.0.0.1-test.nupkg)"
+    ]
+  }
+}

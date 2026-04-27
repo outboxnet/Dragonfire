@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TenantContext.AspNetCore/TenantContext.AspNetCore.csproj" />
+    <Project Path="src/TenantContext.Grpc/TenantContext.Grpc.csproj" />
+    <Project Path="src/TenantContext.Http/TenantContext.Http.csproj" />
+    <Project Path="src/TenantContext.Logging/TenantContext.Logging.csproj" />
+    <Project Path="src/TenantContext.Tasks/TenantContext.Tasks.csproj" />
+    <Project Path="src/TenantContext/TenantContext.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TenantContext.Tests/TenantContext.Tests.csproj" />
+  </Folder>
+</Solution>

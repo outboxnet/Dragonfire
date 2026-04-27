@@ -1,0 +1,92 @@
+name: Publish to NuGet
+
+# Triggers:
+#   • Push a tag like v3.0.0  → publishes that version
+#   • Manually via Actions UI → lets you specify a version override
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'   # v3.0.0, v3.1.0-beta.1, etc.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version (e.g. 8.0.1)'
+        required: true
+        default: '8.0.0'
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  publish:
+    name: Pack & publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Resolve the version ───────────────────────────────────────────────
+      # Tag push  → strip leading 'v' from refs/tags/v3.0.0
+      # Manual    → use the workflow_dispatch input
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing version: $VERSION"
+
+      # ── .NET setup ────────────────────────────────────────────────────────
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # ── Build ─────────────────────────────────────────────────────────────
+      - name: Restore
+        run: dotnet restore Dragonfire.Logging.slnx
+
+      - name: Build
+        run: |
+          dotnet build Dragonfire.Logging.slnx \
+            --configuration Release \
+            --no-restore \
+            -p:Version=${{ steps.version.outputs.value }}
+
+      # ── Pack ──────────────────────────────────────────────────────────────
+      - name: Pack
+        run: |
+          dotnet pack Dragonfire.Logging.slnx \
+            --configuration Release \
+            --no-build \
+            --output ./nupkgs \
+            -p:Version=${{ steps.version.outputs.value }}
+
+      # ── Verify every package has a README embedded ────────────────────────
+      - name: Verify README in packages
+        run: |
+          for pkg in ./nupkgs/*.nupkg; do
+            echo "Checking $pkg …"
+            unzip -l "$pkg" | grep -i "README.md" || { echo "ERROR: README.md missing from $pkg"; exit 1; }
+          done
+          echo "All packages contain README.md ✓"
+
+      # ── Upload as artifact (useful for debugging before first publish) ─────
+      - name: Upload packages as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs-${{ steps.version.outputs.value }}
+          path: ./nupkgs/*.nupkg
+
+      # ── Push to NuGet.org ─────────────────────────────────────────────────
+      # Add NUGET_API_KEY to GitHub repo → Settings → Secrets and variables → Actions
+      - name: Push to NuGet.org
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

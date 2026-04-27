@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>TenantContext.Tasks</RootNamespace>
+    <AssemblyName>TenantContext.Tasks</AssemblyName>
+    <PackageId>TenantContext.Tasks</PackageId>
+    <Description>Background-task tenant propagation for TenantContext: capture the current tenant on the producing thread and re-establish it on the worker thread, even when ExecutionContext flow is suppressed (queues, channels, custom schedulers).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TenantContext\TenantContext.csproj" />
+  </ItemGroup>
+</Project>

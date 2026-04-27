@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+	  <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+
+	  <!--
+      Write every source-generator output to disk so you can read/diff/debug it.
+      Files land in:
+        obj\Debug\net8.0\Generated\
+          Dragonfire.Logging.Generator\
+            Dragonfire.Logging.Generator.LoggingProxyGenerator\
+              OrderServiceLoggingProxy.g.cs
+              DragonfireGeneratedExtensions.g.cs
+    -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Dragonfire.Logging.AspNetCore\Dragonfire.Logging.AspNetCore.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Logging\Dragonfire.Logging.csproj" />
+
+	  <ProjectReference
+		  Include="..\src\Dragonfire.Logging.Generator\Dragonfire.Logging.Generator.csproj"
+		  OutputItemType="Analyzer"
+		  ReferenceOutputAssembly="false" />
+
+
+  </ItemGroup>
+	
+
+</Project>

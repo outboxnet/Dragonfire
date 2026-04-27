@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>TenantContext</RootNamespace>
+    <AssemblyName>TenantContext</AssemblyName>
+    <PackageId>TenantContext</PackageId>
+    <Description>Tech-agnostic core for tenant context propagation: ITenantContextAccessor (AsyncLocal), resolver pipeline with ambiguity/missing policies, scope-based setter, and serialization for outbox/inbox/saga propagation. No web or transport dependencies.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="TenantContext.Tests" />
+  </ItemGroup>
+</Project>

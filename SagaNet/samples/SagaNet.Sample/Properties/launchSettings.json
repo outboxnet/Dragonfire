@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "SagaNet.Sample": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:63238;http://localhost:63239"
+    }
+  }
+}

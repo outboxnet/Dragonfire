@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    name: Build & verify pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore Dragonfire.Caching.sln
+
+      - name: Build
+        run: dotnet build Dragonfire.Caching.sln --configuration Release --no-restore
+
+      - name: Pack (smoke-test — not published)
+        run: dotnet pack Dragonfire.Caching.sln --configuration Release --no-build --output ./nupkgs
+
+      - name: Upload packages as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs-ci
+          path: ./nupkgs/*.nupkg
+          retention-days: 7

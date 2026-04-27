@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>SyncLib.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>SyncLib.EntityFrameworkCore</AssemblyName>
+    <PackageId>SyncLib.EntityFrameworkCore</PackageId>
+    <Description>EF Core implementations of SyncLib state store and a generic repository.</Description>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SyncLib.Abstractions\SyncLib.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

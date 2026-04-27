@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PackageId>Dragonfire.Logging.AspNetCore</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Dragonfire</Authors>
+    <Description>ASP.NET Core integration for Dragonfire.Logging — automatic HTTP request/response logging via a global MVC action filter (Web API + MVC controllers) and a lightweight middleware for minimal-API projects. Install this package in your web host; install Dragonfire.Logging in pure class libraries.</Description>
+    <PackageTags>logging;aspnetcore;webapi;mvc;middleware;structured-logging;request-logging</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/dragonfire/logging</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Dragonfire.Logging\Dragonfire.Logging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
+  </ItemGroup>
+
+</Project>
