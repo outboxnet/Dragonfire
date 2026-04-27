@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Dragonfire.Sync.Abstractions</RootNamespace>
+    <AssemblyName>Dragonfire.Sync.Abstractions</AssemblyName>
+    <PackageId>Dragonfire.Sync.Abstractions</PackageId>
+    <Description>Interfaces for Dragonfire.Sync: a small library for scheduled data-synchronization jobs in .NET.</Description>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+</Project>

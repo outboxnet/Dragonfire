@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Dragonfire.Inbox.LoadTests": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Dragonfire.Sync.Sample.WebApi/Dragonfire.Sync.Sample.WebApi.csproj" />
+    <Project Path="samples/Dragonfire.Sync.Sample.AzureFunctions/Dragonfire.Sync.Sample.AzureFunctions.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.Sync.Abstractions/Dragonfire.Sync.Abstractions.csproj" />
+    <Project Path="src/Dragonfire.Sync.Core/Dragonfire.Sync.Core.csproj" />
+    <Project Path="src/Dragonfire.Sync.EntityFrameworkCore/Dragonfire.Sync.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dragonfire.Sync.Core.Tests/Dragonfire.Sync.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/solution-items/">
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+    <File Path="CHANGELOG.md" />
+    <File Path="LICENSE" />
+    <File Path=".editorconfig" />
+  </Folder>
+</Solution>

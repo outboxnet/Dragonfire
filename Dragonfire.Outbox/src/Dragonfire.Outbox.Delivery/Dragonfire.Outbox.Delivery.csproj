@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Outbox.Delivery</RootNamespace>
+    <Description>HTTP webhook delivery with HMAC signing and retry policies for Dragonfire.Outbox</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dragonfire.Outbox.Delivery.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+</Project>

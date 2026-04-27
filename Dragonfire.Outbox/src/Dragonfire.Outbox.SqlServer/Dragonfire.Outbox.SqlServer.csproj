@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Outbox.SqlServer</RootNamespace>
+    <Description>Direct ADO.NET SQL Server implementation for Dragonfire.Outbox — no Entity Framework dependency</Description>
+    <PackageTags>outbox;sqlserver;transactional-outbox;ado-net</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+</Project>

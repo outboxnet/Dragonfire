@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Dragonfire.Inbox.SampleApp/Dragonfire.Inbox.SampleApp.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.Inbox.AspNetCore/Dragonfire.Inbox.AspNetCore.csproj" />
+    <Project Path="src/Dragonfire.Inbox.AzureFunctions/Dragonfire.Inbox.AzureFunctions.csproj" />
+    <Project Path="src/Dragonfire.Inbox.Core/Dragonfire.Inbox.Core.csproj" />
+    <Project Path="src/Dragonfire.Inbox.EntityFrameworkCore/Dragonfire.Inbox.EntityFrameworkCore.csproj" />
+    <Project Path="src/Dragonfire.Inbox.Processor/Dragonfire.Inbox.Processor.csproj" />
+    <Project Path="src/Dragonfire.Inbox.Providers/Dragonfire.Inbox.Providers.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dragonfire.Inbox.LoadTests/Dragonfire.Inbox.LoadTests.csproj" />
+  </Folder>
+</Solution>

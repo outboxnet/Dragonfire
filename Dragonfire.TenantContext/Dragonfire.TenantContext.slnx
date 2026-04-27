@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.TenantContext.AspNetCore/Dragonfire.TenantContext.AspNetCore.csproj" />
+    <Project Path="src/Dragonfire.TenantContext.Grpc/Dragonfire.TenantContext.Grpc.csproj" />
+    <Project Path="src/Dragonfire.TenantContext.Http/Dragonfire.TenantContext.Http.csproj" />
+    <Project Path="src/Dragonfire.TenantContext.Logging/Dragonfire.TenantContext.Logging.csproj" />
+    <Project Path="src/Dragonfire.TenantContext.Tasks/Dragonfire.TenantContext.Tasks.csproj" />
+    <Project Path="src/Dragonfire.TenantContext/Dragonfire.TenantContext.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dragonfire.TenantContext.Tests/Dragonfire.TenantContext.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Inbox.AzureFunctions</RootNamespace>
+    <Description>Azure Functions Isolated Worker integration for Dragonfire.Inbox — HTTP trigger receiver and timer trigger dispatcher with full pipeline</Description>
+    <PackageTags>inbox;webhook;azure-functions;transactional-inbox;isolated-worker</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Inbox.Processor\Dragonfire.Inbox.Processor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- HttpRequestData, HttpResponseData live in the core Worker package -->
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+</Project>

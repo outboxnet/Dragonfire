@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Dragonfire.Sync.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Dragonfire.Sync.EntityFrameworkCore</AssemblyName>
+    <PackageId>Dragonfire.Sync.EntityFrameworkCore</PackageId>
+    <Description>EF Core implementations of Dragonfire.Sync state store and a generic repository.</Description>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Sync.Abstractions\Dragonfire.Sync.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

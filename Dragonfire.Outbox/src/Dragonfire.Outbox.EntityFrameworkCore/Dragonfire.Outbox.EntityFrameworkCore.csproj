@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Outbox.EntityFrameworkCore</RootNamespace>
+    <Description>Entity Framework Core with SQL Server implementation for Dragonfire.Outbox</Description>
+    <PackageTags>outbox;efcore;entity-framework;sqlserver;transactional-outbox</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+</Project>

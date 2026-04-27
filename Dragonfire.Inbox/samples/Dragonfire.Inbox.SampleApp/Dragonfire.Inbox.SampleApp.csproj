@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Dragonfire.Inbox.AspNetCore\Dragonfire.Inbox.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Inbox.Core\Dragonfire.Inbox.Core.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Inbox.EntityFrameworkCore\Dragonfire.Inbox.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Inbox.Processor\Dragonfire.Inbox.Processor.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Inbox.Providers\Dragonfire.Inbox.Providers.csproj" />
+  </ItemGroup>
+
+</Project>

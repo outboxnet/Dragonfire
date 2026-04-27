@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="Dragonfire.Outbox.SampleApp/Dragonfire.Outbox.SampleApp.csproj" Id="eee5f658-8c5b-48ba-a9d5-0d4244991765" />
+    <Project Path="src/Dragonfire.Outbox.AzureFunctions/Dragonfire.Outbox.AzureFunctions.csproj" />
+    <Project Path="src/Dragonfire.Outbox.AzureStorageQueue/Dragonfire.Outbox.AzureStorageQueue.csproj" />
+    <Project Path="src/Dragonfire.Outbox.Core/Dragonfire.Outbox.Core.csproj" />
+    <Project Path="src/Dragonfire.Outbox.Delivery/Dragonfire.Outbox.Delivery.csproj" />
+    <Project Path="src/Dragonfire.Outbox.EntityFrameworkCore/Dragonfire.Outbox.EntityFrameworkCore.csproj" />
+    <Project Path="src/Dragonfire.Outbox.Processor/Dragonfire.Outbox.Processor.csproj" />
+    <Project Path="src/Dragonfire.Outbox.SqlServer/Dragonfire.Outbox.SqlServer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dragonfire.Outbox.Core.Tests/Dragonfire.Outbox.Core.Tests.csproj" />
+    <Project Path="tests/Dragonfire.Outbox.Delivery.Tests/Dragonfire.Outbox.Delivery.Tests.csproj" />
+    <Project Path="tests/Dragonfire.Outbox.LoadTests/Dragonfire.Outbox.LoadTests.csproj" />
+    <Project Path="tests/Dragonfire.Outbox.Processor.Tests/Dragonfire.Outbox.Processor.Tests.csproj" />
+  </Folder>
+</Solution>

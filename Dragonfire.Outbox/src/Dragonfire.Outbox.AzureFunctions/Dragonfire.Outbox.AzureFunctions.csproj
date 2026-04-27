@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Outbox.AzureFunctions</RootNamespace>
+    <Description>Azure Functions timer trigger processor for Dragonfire.Outbox</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+    <ProjectReference Include="..\Dragonfire.Outbox.Processor\Dragonfire.Outbox.Processor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" />
+  </ItemGroup>
+</Project>

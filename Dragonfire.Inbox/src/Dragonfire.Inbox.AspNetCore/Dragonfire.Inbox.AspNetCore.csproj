@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Inbox.AspNetCore</RootNamespace>
+    <Description>ASP.NET Core webhook receive endpoints for the Dragonfire.Inbox inbox — parses, validates, and persists incoming provider webhooks</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Dragonfire.Inbox.Core\Dragonfire.Inbox.Core.csproj" />
+  </ItemGroup>
+</Project>

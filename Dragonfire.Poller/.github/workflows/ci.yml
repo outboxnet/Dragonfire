@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # needed for Source Link
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore Dragonfire.Poller.sln
+
+      - name: Build
+        run: dotnet build Dragonfire.Poller.sln --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test Dragonfire.Poller.sln --no-build --configuration Release --verbosity normal
+
+      - name: Pack (smoke-test packaging)
+        run: dotnet pack Dragonfire.Poller/Dragonfire.Poller.csproj --no-build --configuration Release --output ./nupkg
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: ./nupkg/*.nupkg
+          if-no-files-found: error

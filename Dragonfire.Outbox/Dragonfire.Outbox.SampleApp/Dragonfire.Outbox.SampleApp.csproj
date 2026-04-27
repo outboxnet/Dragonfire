@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Dragonfire.Outbox.AzureStorageQueue\Dragonfire.Outbox.AzureStorageQueue.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.Delivery\Dragonfire.Outbox.Delivery.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.EntityFrameworkCore\Dragonfire.Outbox.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.Processor\Dragonfire.Outbox.Processor.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.SqlServer\Dragonfire.Outbox.SqlServer.csproj" />
+  </ItemGroup>
+
+</Project>

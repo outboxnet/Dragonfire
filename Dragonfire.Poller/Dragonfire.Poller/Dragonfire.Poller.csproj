@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Dragonfire.Poller</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>sandor</Authors>
+    <Company>sandor</Company>
+    <Product>Dragonfire.Poller</Product>
+    <Description>
+      A production-ready .NET 8 polling framework with exponential backoff, configurable retry
+      strategies, real-time progress streaming, and pluggable metrics. Designed for high-throughput
+      scenarios such as payment processing, order tracking, and external API polling.
+    </Description>
+    <PackageTags>polling;retry;backoff;background-service;async;dotnet;aspnetcore</PackageTags>
+    <PackageProjectUrl>https://github.com/sandor/Dragonfire.Poller</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sandor/Dragonfire.Poller</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright © 2026 sandor</Copyright>
+
+    <!-- XML documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <!-- Deterministic builds + Source Link ready -->
+    <Deterministic>true</Deterministic>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <!-- Include README in the NuGet package -->
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" Condition="Exists('../README.md')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Azure Application Insights — optional; only needed if AddApplicationInsightsPollingMetrics() is called -->
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="3.1.0" />
+
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+
+    <!-- DI: needed for TryAddSingleton extension method -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+
+    <!-- HttpClient factory -->
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+
+    <!--
+      Microsoft.Extensions.Hosting.Abstractions and Microsoft.Extensions.Logging.Abstractions
+      are resolved transitively (Microsoft.ApplicationInsights pulls a compatible version).
+      No explicit pin needed — avoids NU1605 downgrade conflicts.
+    -->
+  </ItemGroup>
+
+</Project>

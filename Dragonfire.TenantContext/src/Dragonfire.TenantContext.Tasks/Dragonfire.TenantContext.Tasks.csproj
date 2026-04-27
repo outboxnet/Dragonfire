@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.TenantContext.Tasks</RootNamespace>
+    <AssemblyName>Dragonfire.TenantContext.Tasks</AssemblyName>
+    <PackageId>Dragonfire.TenantContext.Tasks</PackageId>
+    <Description>Background-task tenant propagation for Dragonfire.TenantContext: capture the current tenant on the producing thread and re-establish it on the worker thread, even when ExecutionContext flow is suppressed (queues, channels, custom schedulers).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.TenantContext\Dragonfire.TenantContext.csproj" />
+  </ItemGroup>
+</Project>

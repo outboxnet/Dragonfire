@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Dragonfire.Sync.Core</RootNamespace>
+    <AssemblyName>Dragonfire.Sync.Core</AssemblyName>
+    <PackageId>Dragonfire.Sync.Core</PackageId>
+    <Description>Hosted orchestrator, retry, circuit-breaker, metrics and tracing for Dragonfire.Sync.</Description>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Sync.Abstractions\Dragonfire.Sync.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dragonfire.Sync.Core.Tests" />
+  </ItemGroup>
+
+</Project>

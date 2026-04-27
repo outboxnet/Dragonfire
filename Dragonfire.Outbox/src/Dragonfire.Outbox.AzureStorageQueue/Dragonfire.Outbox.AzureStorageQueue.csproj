@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Outbox.AzureStorageQueue</RootNamespace>
+    <Description>Azure Storage Queue transport publisher for Dragonfire.Outbox</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" />
+  </ItemGroup>
+</Project>
