@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Caching.Serialization.Protobuf</PackageId>
-    <Version>3.0.0</Version>
     <Description>Protobuf serializer for Dragonfire.Caching using Google.Protobuf. Replaces the default JSON serializer for IMessage types.</Description>
     <PackageTags>caching;cache;protobuf;serialization;dotnet</PackageTags>
   </PropertyGroup>

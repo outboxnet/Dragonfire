@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Caching.Memory</PackageId>
-    <Version>3.0.0</Version>
     <Description>In-memory cache provider for Dragonfire.Caching. Supports pattern-based removal, tag indexing, statistics, and eviction callbacks.</Description>
     <PackageTags>caching;cache;memory;dotnet</PackageTags>
   </PropertyGroup>

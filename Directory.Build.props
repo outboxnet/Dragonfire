@@ -1,0 +1,52 @@
+<Project>
+
+  <!--
+    ============================================================================
+    Dragonfire — root Directory.Build.props
+    ============================================================================
+    Single source of truth for the package version and shared NuGet metadata
+    across every library in the Dragonfire suite.
+
+    To ship a new release of EVERY package at the same version:
+        1. Bump <Version> below
+        2. Run `pwsh ./pack-all.ps1` (or `pwsh ./pack-all.ps1 -Version 1.2.3`)
+        3. Push the resulting nupkg/snupkg files in ./artifacts/
+
+    Per-project metadata (PackageId, Description, PackageTags, etc.) lives in
+    each project's own Directory.Build.props or .csproj — only properties that
+    must be uniform across the whole suite belong here.
+    ============================================================================
+  -->
+
+  <PropertyGroup Label="Version">
+    <Version>8.3.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Shared package metadata">
+    <Authors>Dragonfire Contributors</Authors>
+    <Company>Dragonfire</Company>
+    <Product>Dragonfire</Product>
+    <Copyright>Copyright (c) Dragonfire Contributors</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/outboxnet/Dragonfire</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/outboxnet/Dragonfire.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Reproducible builds + SourceLink">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Common compiler defaults">
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

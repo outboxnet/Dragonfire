@@ -8,7 +8,6 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Dragonfire.Poller</PackageId>
-    <Version>1.0.0</Version>
     <Authors>sandor</Authors>
     <Company>sandor</Company>
     <Product>Dragonfire.Poller</Product>

@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Dragonfire pack-all output
+artifacts/
+**/artifacts/
+*.nupkg
+*.snupkg
+
 # User-specific files
 *.rsuser
 *.suo

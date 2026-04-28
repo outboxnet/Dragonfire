@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<PackageId>Dragonfire.Saga.Persistence.EfCore</PackageId>
-		<Version>1.0.0</Version>
 		<Description>Entity Framework Core persistence provider for Dragonfire.Saga, targeting SQL Server.</Description>
 		<PackageTags>saga;workflow;efcore;sqlserver;persistence</PackageTags>
 	</PropertyGroup>

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Caching.Hybrid</PackageId>
-    <Version>3.0.0</Version>
     <Description>Hybrid (L1 memory + L2 distributed) cache provider for Dragonfire.Caching. Automatically promotes L2 hits to L1.</Description>
     <PackageTags>caching;cache;hybrid;memory;distributed;dotnet</PackageTags>
   </PropertyGroup>

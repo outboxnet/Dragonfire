@@ -13,7 +13,6 @@
 
     <!-- NuGet metadata -->
     <PackageId>Dragonfire.Logging.Generator</PackageId>
-    <Version>1.0.0</Version>
     <Authors>Dragonfire</Authors>
     <Description>
       Roslyn source generator for Dragonfire.Logging.

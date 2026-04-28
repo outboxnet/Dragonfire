@@ -1,0 +1,82 @@
+name: release
+
+# Ships every Dragonfire.* package to NuGet.org at one shared version.
+#
+# Trigger options:
+#   1. Push a tag like `v8.3.0`              → version comes from the tag
+#   2. Run manually via "workflow_dispatch"  → version typed into the input
+#
+# Required repo secret:
+#   NUGET_API_KEY   — an API key on https://www.nuget.org/account/apikeys
+#                     scoped to "Push new packages and package versions" for
+#                     the Dragonfire.* glob.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version to publish (e.g. 8.3.0 or 8.4.0-preview.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: write   # needed to create a GitHub Release on tag push
+
+jobs:
+  pack-and-push:
+    name: pack + push to nuget.org
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Resolve version
+        id: ver
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing version: $VERSION"
+
+      - name: Pack + push every package
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          ./pack-all.sh \
+            --version "${{ steps.ver.outputs.version }}" \
+            --push \
+            --api-key "$NUGET_API_KEY" \
+            --source "https://api.nuget.org/v3/index.json"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs-${{ steps.ver.outputs.version }}
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+      - name: Create GitHub Release (tag push only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Dragonfire ${{ steps.ver.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg

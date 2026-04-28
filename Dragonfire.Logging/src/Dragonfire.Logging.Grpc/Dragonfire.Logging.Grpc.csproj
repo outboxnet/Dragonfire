@@ -4,8 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
     <PackageId>Dragonfire.Logging.Grpc</PackageId>
-    <Version>1.0.0</Version>
     <Authors>Dragonfire</Authors>
     <Description>gRPC server and client logging interceptors for Dragonfire.Logging.
 Provides structured customDimensions logging for all gRPC call types (unary, client-streaming,

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Caching</PackageId>
-    <Version>3.0.0</Version>
     <Description>Composable caching for .NET 8 — core package with minimal dependencies. Includes in-memory tag index, channel-based invalidation queue, cache service, and JSON serializer. Add provider packages (Memory, Distributed, Hybrid) and Redis/Protobuf packages as needed.</Description>
     <PackageTags>caching;cache;invalidation;tags;composable;dotnet</PackageTags>
   </PropertyGroup>

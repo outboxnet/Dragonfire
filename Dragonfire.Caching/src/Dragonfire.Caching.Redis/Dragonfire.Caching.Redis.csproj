@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Caching.Redis</PackageId>
-    <Version>3.0.0</Version>
     <Description>Redis-backed tag index for Dragonfire.Caching. Enables distributed tag-based cache invalidation using StackExchange.Redis.</Description>
     <PackageTags>caching;cache;redis;tags;invalidation;dotnet</PackageTags>
   </PropertyGroup>

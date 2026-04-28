@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Saga.Extensions.DependencyInjection</PackageId>
-    <Version>1.0.0</Version>
     <Description>Microsoft.Extensions.DependencyInjection integration for Dragonfire.Saga.</Description>
     <PackageTags>saga;workflow;dependencyinjection;aspnetcore</PackageTags>
   </PropertyGroup>

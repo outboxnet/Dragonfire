@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: build + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build all packages (no push)
+        shell: bash
+        run: ./pack-all.sh
+
+      - name: Run tests for every solution
+        shell: bash
+        run: |
+          set -e
+          shopt -s nullglob
+          for sln in */*.slnx */*.sln; do
+            echo "== test: $sln =="
+            dotnet test "$sln" --configuration Release --no-restore --nologo
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: artifacts/*.nupkg

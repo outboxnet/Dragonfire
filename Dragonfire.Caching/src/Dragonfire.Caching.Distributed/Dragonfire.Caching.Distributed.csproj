@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Caching.Distributed</PackageId>
-    <Version>3.0.0</Version>
     <Description>Distributed cache provider for Dragonfire.Caching. Works with any IDistributedCache backend (Redis, SQL Server, etc.).</Description>
     <PackageTags>caching;cache;distributed;redis;dotnet</PackageTags>
   </PropertyGroup>

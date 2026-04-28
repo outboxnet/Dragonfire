@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>Dragonfire.Saga.Core</PackageId>
-    <Version>1.0.0</Version>
     <Description>Core abstractions, workflow engine, and saga orchestration for Dragonfire.Saga — a high-performance, observable workflow and saga library for .NET.</Description>
     <PackageTags>saga;workflow;orchestration;ddd;dotnet;netcore</PackageTags>
   </PropertyGroup>

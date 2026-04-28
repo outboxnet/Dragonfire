@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <PackageId>Dragonfire.Logging</PackageId>
-    <Version>1.0.0</Version>
     <Authors>Dragonfire</Authors>
     <Description>Core structured logging for .NET — service-layer interception via ILoggable, sensitive-data redaction, and a flexible log pipeline. Framework-agnostic; use Dragonfire.Logging.AspNetCore for HTTP request/response logging.</Description>
     <PackageTags>logging;structured-logging;interceptor;scrutor;castle;iloggable</PackageTags>
