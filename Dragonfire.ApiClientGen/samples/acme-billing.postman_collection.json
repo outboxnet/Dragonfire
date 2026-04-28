@@ -1,0 +1,198 @@
+{
+  "info": {
+    "name": "Acme Billing API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://api.acme.test" }
+  ],
+  "item": [
+    {
+      "name": "Create Tenant",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw":  "{\"name\":\"Acme\",\"plan\":\"pro\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw":  "{{baseUrl}}/tenants",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "tenants" ]
+        }
+      },
+      "response": [
+        {
+          "name": "Created",
+          "status": "Created",
+          "code": 201,
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "body":   "{\"id\":\"t-1\",\"name\":\"Acme\",\"plan\":\"pro\",\"createdAt\":\"2026-04-29T12:00:00Z\"}"
+        }
+      ]
+    },
+    {
+      "name": "Get Tenant",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "url": {
+          "raw":  "{{baseUrl}}/tenants/:id",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "tenants", ":id" ]
+        }
+      },
+      "response": [
+        {
+          "name": "OK",
+          "status": "OK",
+          "code": 200,
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "body":   "{\"id\":\"t-1\",\"name\":\"Acme\",\"plan\":\"pro\",\"createdAt\":\"2026-04-29T12:00:00Z\"}"
+        }
+      ]
+    },
+    {
+      "name": "List Tenants",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "url": {
+          "raw":  "{{baseUrl}}/tenants?page=1&pageSize=20",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "tenants" ],
+          "query": [
+            { "key": "page",     "value": "1" },
+            { "key": "pageSize", "value": "20" }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "OK",
+          "status": "OK",
+          "code": 200,
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "body":   "{\"items\":[{\"id\":\"t-1\",\"name\":\"Acme\",\"plan\":\"pro\",\"createdAt\":\"2026-04-29T12:00:00Z\"}],\"totalCount\":1}"
+        }
+      ]
+    },
+    {
+      "name": "Delete Tenant",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "url": {
+          "raw":  "{{baseUrl}}/tenants/:id",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "tenants", ":id" ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Invoice",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw":  "{\"amount\":99.50,\"currency\":\"USD\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw":  "{{baseUrl}}/tenants/:id/invoices",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "tenants", ":id", "invoices" ]
+        }
+      },
+      "response": [
+        {
+          "name": "Created",
+          "status": "Created",
+          "code": 201,
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "body":   "{\"id\":\"inv-1\",\"tenantId\":\"t-1\",\"amount\":99.50,\"currency\":\"USD\",\"status\":\"open\",\"createdAt\":\"2026-04-29T12:00:00Z\"}"
+        }
+      ]
+    },
+    {
+      "name": "Exchange Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type",  "value": "application/x-www-form-urlencoded" },
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "grant_type",    "value": "client_credentials" },
+            { "key": "client_id",     "value": "acme-app" },
+            { "key": "client_secret", "value": "s3cret" },
+            { "key": "scope",         "value": "billing.read billing.write" }
+          ]
+        },
+        "url": {
+          "raw":  "{{baseUrl}}/oauth/token",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "oauth", "token" ]
+        }
+      },
+      "response": [
+        {
+          "name": "OK",
+          "status": "OK",
+          "code": 200,
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "body":   "{\"accessToken\":\"abc.def.ghi\",\"tokenType\":\"Bearer\",\"expiresIn\":3600}"
+        }
+      ]
+    },
+    {
+      "name": "Upload Receipt",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-Api-Version", "value": "2024-01" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "tenantId", "value": "t-1",                "type": "text" },
+            { "key": "note",     "value": "April expenses",     "type": "text" },
+            { "key": "receipt",  "type":  "file" }
+          ]
+        },
+        "url": {
+          "raw":  "{{baseUrl}}/tenants/:id/receipts",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "tenants", ":id", "receipts" ]
+        }
+      },
+      "response": [
+        {
+          "name": "Created",
+          "status": "Created",
+          "code": 201,
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "body":   "{\"id\":\"rcpt-1\",\"tenantId\":\"t-1\",\"filename\":\"april.pdf\",\"sizeBytes\":12345,\"createdAt\":\"2026-04-29T12:00:00Z\"}"
+        }
+      ]
+    }
+  ]
+}

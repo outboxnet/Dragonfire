@@ -1,0 +1,34 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+
+namespace {{ namespace }};
+
+public static class {{ prefix }}ServiceCollectionExtensions
+{
+    public static IServiceCollection Add{{ prefix }}Client(
+        this IServiceCollection services,
+        Action<{{ prefix }}ClientOptions>? configureClient = null,
+        Action<{{ prefix }}LoggingOptions>? configureLogging = null)
+    {
+        if (configureClient  is not null) services.Configure(configureClient);
+        else                              services.AddOptions<{{ prefix }}ClientOptions>();
+
+        if (configureLogging is not null) services.Configure(configureLogging);
+        else                              services.AddOptions<{{ prefix }}LoggingOptions>();
+
+        services.TryAddSingleton<I{{ prefix }}RequestSigner, NoOp{{ prefix }}RequestSigner>();
+        services.TryAddSingleton<I{{ prefix }}HttpLogger, Default{{ prefix }}HttpLogger>();
+        services.TryAddSingleton<I{{ prefix }}ErrorHandler, NoOp{{ prefix }}ErrorHandler>();
+
+        services.AddHttpClient<I{{ prefix }}Client, {{ prefix }}Client>((sp, http) =>
+        {
+            var opt = sp.GetRequiredService<IOptions<{{ prefix }}ClientOptions>>().Value;
+            if (!string.IsNullOrEmpty(opt.BaseUrl))
+                http.BaseAddress = new Uri(opt.BaseUrl);
+            http.Timeout = opt.Timeout;
+        });
+
+        return services;
+    }
+}

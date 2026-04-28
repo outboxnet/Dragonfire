@@ -1,0 +1,12 @@
+namespace {{ namespace }};
+
+public interface I{{ prefix }}RequestSigner
+{
+    Task SignAsync(HttpRequestMessage request, string operationName, CancellationToken cancellationToken);
+}
+
+public sealed class NoOp{{ prefix }}RequestSigner : I{{ prefix }}RequestSigner
+{
+    public Task SignAsync(HttpRequestMessage request, string operationName, CancellationToken cancellationToken)
+        => Task.CompletedTask;
+}

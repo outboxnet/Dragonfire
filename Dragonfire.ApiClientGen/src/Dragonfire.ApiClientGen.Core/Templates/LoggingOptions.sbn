@@ -1,0 +1,21 @@
+using Microsoft.Extensions.Logging;
+
+namespace {{ namespace }};
+
+public sealed class {{ prefix }}LoggingOptions
+{
+    public LogLevel DefaultLevel { get; set; } = LogLevel.Information;
+    public bool LogRequestBody  { get; set; } = false;
+    public bool LogResponseBody { get; set; } = false;
+
+    /// <summary>Per-operation overrides keyed by method name (e.g. "CreateTenantAsync").</summary>
+    public Dictionary<string, EndpointLoggingOptions> Endpoints { get; set; } = new();
+}
+
+public sealed class EndpointLoggingOptions
+{
+    public LogLevel? Level { get; set; }
+    public bool? LogRequestBody  { get; set; }
+    public bool? LogResponseBody { get; set; }
+    public bool Disabled { get; set; }
+}

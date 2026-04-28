@@ -1,0 +1,37 @@
+namespace {{ namespace }};
+
+/// <summary>
+/// Context passed to <see cref="I{{ prefix }}ErrorHandler"/> whenever a call
+/// returns a non-success status code or fails at the transport layer. The
+/// generated client invokes the handler before returning the failed
+/// <see cref="ApiResponse{T}"/> to the caller.
+/// </summary>
+public sealed class {{ prefix }}ErrorContext
+{
+    public string OperationName { get; init; } = "";
+    public int StatusCode { get; init; }
+    public string? RawBody { get; init; }
+    public string? ErrorCode { get; init; }
+    public string? ErrorMessage { get; init; }
+    public IReadOnlyDictionary<string, string> Headers { get; init; }
+        = new Dictionary<string, string>();
+    public TimeSpan Elapsed { get; init; }
+    public Exception? Exception { get; init; }
+}
+
+/// <summary>
+/// Pluggable global hook invoked whenever a call fails. Register a custom
+/// implementation via <c>services.AddSingleton&lt;I{{ prefix }}ErrorHandler, MyHandler&gt;()</c>
+/// to centralise logging, metrics, or exception translation.
+/// </summary>
+public interface I{{ prefix }}ErrorHandler
+{
+    Task HandleAsync({{ prefix }}ErrorContext context, CancellationToken cancellationToken = default);
+}
+
+/// <summary>Default no-op handler. Registered via <c>TryAddSingleton</c> so user overrides win.</summary>
+public sealed class NoOp{{ prefix }}ErrorHandler : I{{ prefix }}ErrorHandler
+{
+    public Task HandleAsync({{ prefix }}ErrorContext context, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+}

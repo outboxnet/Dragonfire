@@ -20,10 +20,15 @@ service │   long-running    ──→ Dragonfire.Saga       (sagas + compensat
         │
         │   read-through    ──→ Dragonfire.Caching    (memory / Redis / hybrid + tags)
         │     cache
+        │   feature flags   ──→ Dragonfire.Features   (gates, percentage rollout, audit)
         │   request-scoped  ──→ Dragonfire.TenantContext  (ambient tenant for B2B2C)
         │     identity
         │   structured     ───→ Dragonfire.Logging    (zero-boilerplate, source-generated)
-            logging
+        │     logging
+        │
+        │   typed C# client ─→ Dragonfire.ApiClientGen (CLI: postman.json → typed HttpClient)
+              from a postman
+              collection
 ```
 
 Every package is independent — pull only what you use. Cross-cutting concerns
@@ -36,7 +41,8 @@ when registered.
 
 | Project folder | What it solves |
 |---|---|
-| **[Dragonfire.Caching](./Dragonfire.Caching)** | Composable read-through caching with tag-based invalidation, stampede protection, and pluggable providers (Memory · Distributed · Hybrid · Redis · Protobuf serialization). |
+| **[Dragonfire.Caching](./Dragonfire.Caching)** | Composable read-through caching with tag-based invalidation, stampede protection, and pluggable providers (Memory · Distributed · Hybrid · Redis · Protobuf serialization · gRPC interceptors). |
+| **[Dragonfire.Features](./Dragonfire.Features)** | Feature toggles + release gates: `[FeatureGate]` attribute, per-tenant / per-user / percentage rules, periodic refresh from `IConfiguration` or EF Core, audit log for B2B compliance, optional caching decorator. |
 | **[Dragonfire.Inbox](./Dragonfire.Inbox)** | Transactional inbox for receiving webhooks. Persists incoming events atomically, deduplicates by provider event ID, dispatches to your handlers with at-least-once delivery + exponential retry + dead-letter. |
 | **[Dragonfire.Logging](./Dragonfire.Logging)** | Source-generated structured logging — annotate a service with `[Loggable]`, get compile-time logging proxies with redaction, scrubbing, and one named property per field. ASP.NET, Application Insights, gRPC adapters. |
 | **[Dragonfire.Outbox](./Dragonfire.Outbox)** | Transactional outbox for sending webhooks. Solves the dual-write problem: writes outbox row in the same DB transaction as your domain data, then a background processor delivers with HMAC signing, retry, and per-subscription routing. |
@@ -44,6 +50,7 @@ when registered.
 | **[Dragonfire.Saga](./Dragonfire.Saga)** | Workflows + sagas with crash-safe persistence, retries, and compensation. Define multi-step business processes that survive process restarts. |
 | **[Dragonfire.Sync](./Dragonfire.Sync)** | Scheduled data-synchronization jobs with retries, circuit breaker, and observability. Each provider fetches data, maps to your entities, persists through your repository. |
 | **[Dragonfire.TenantContext](./Dragonfire.TenantContext)** | Composable tenant-context propagation for B2B2C SaaS. Resolver pipeline (header / claim / subdomain / route / API key), middleware, HTTP `DelegatingHandler`, gRPC interceptors, logger enrichment, scope helpers for queues and `Task`s. |
+| **[Dragonfire.ApiClientGen](./Dragonfire.ApiClientGen)** | Standalone CLI (`dotnet tool`) that consumes a Postman v2.1 collection and emits a typed C# HTTP client library — interface, implementation, models, `Endpoints` constants, `IOptions`-backed common headers, wrapper response type, and pluggable seams for request signing and per-endpoint logging. Not a Roslyn generator. |
 
 Each folder has its own deep-dive README. The summaries above are intentionally
 short — open any package for the full story.

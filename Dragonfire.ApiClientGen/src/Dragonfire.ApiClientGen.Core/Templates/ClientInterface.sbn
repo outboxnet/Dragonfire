@@ -1,0 +1,31 @@
+using {{ namespace }}.Models;
+
+namespace {{ namespace }};
+
+public interface I{{ prefix }}Client
+{
+{{~ for op in operations ~}}
+    Task<ApiResponse<{{ op.response_type }}>> {{ op.method_name }}(
+{{~ for p in op.parameters ~}}
+        {{ p.csharp_type }} {{ p.name }},
+{{~ end ~}}
+        Action<HttpResponseMessage>? onResponse = null,
+        I{{ prefix }}RequestSigner? signerOverride = null,
+        CancellationToken cancellationToken = default);
+
+{{~ end ~}}
+    /// <summary>
+    /// Generic JSON helper - escape hatch for ad-hoc calls that bypass the
+    /// strongly-typed surface. Honours common headers, the request signer,
+    /// the error handler, and per-call hooks.
+    /// </summary>
+    Task<ApiResponse<TResponse>> SendJsonAsync<TRequest, TResponse>(
+        HttpMethod method,
+        string path,
+        TRequest? body,
+        IDictionary<string, string>? extraHeaders = null,
+        string? operationName = null,
+        Action<HttpResponseMessage>? onResponse = null,
+        I{{ prefix }}RequestSigner? signerOverride = null,
+        CancellationToken cancellationToken = default);
+}

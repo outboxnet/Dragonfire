@@ -1,0 +1,21 @@
+using System.Text.Json.Serialization;
+
+namespace {{ namespace }}.Models;
+
+{{~ if is_abstract ~}}
+public abstract class {{ name }}
+{{~ else if base_class_name ~}}
+public sealed class {{ name }} : {{ base_class_name }}
+{{~ else ~}}
+public sealed class {{ name }}
+{{~ end ~}}
+{
+{{~ if is_stub ~}}
+    // TODO: fill in - no example response in collection
+{{~ end ~}}
+{{~ for p in properties ~}}
+    [JsonPropertyName("{{ p.json_name }}")]
+    public {{ p.csharp_type }} {{ p.name }} { get; set; }{{ p.initializer }}
+
+{{~ end ~}}
+}

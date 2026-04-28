@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.Features/Dragonfire.Features.csproj" />
+    <Project Path="src/Dragonfire.Features.AspNetCore/Dragonfire.Features.AspNetCore.csproj" />
+    <Project Path="src/Dragonfire.Features.Configuration/Dragonfire.Features.Configuration.csproj" />
+    <Project Path="src/Dragonfire.Features.EntityFrameworkCore/Dragonfire.Features.EntityFrameworkCore.csproj" />
+    <Project Path="src/Dragonfire.Features.Caching/Dragonfire.Features.Caching.csproj" />
+  </Folder>
+</Solution>

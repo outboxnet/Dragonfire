@@ -1,0 +1,8 @@
+namespace {{ namespace }};
+
+public static class Endpoints
+{
+{{~ for op in operations ~}}
+    public const string {{ op.name }} = "{{ op.path }}";
+{{~ end ~}}
+}

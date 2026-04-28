@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Features.Caching</RootNamespace>
+    <AssemblyName>Dragonfire.Features.Caching</AssemblyName>
+    <PackageId>Dragonfire.Features.Caching</PackageId>
+    <Description>Dragonfire.Caching integration for Dragonfire.Features. Wraps the default IFeatureResolver in a decorator that caches per (feature, tenant, user) tuple via ICacheService, with tag-based invalidation per tenant. Decisions stay hot for high-RPS endpoints while still respecting the next refresh cycle.</Description>
+    <PackageTags>feature-flags;caching;multi-tenant;dotnet</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dragonfire.Caching" Version="8.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Features\Dragonfire.Features.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

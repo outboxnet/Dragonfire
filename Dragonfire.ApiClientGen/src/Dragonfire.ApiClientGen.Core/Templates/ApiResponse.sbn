@@ -1,0 +1,19 @@
+namespace {{ namespace }};
+
+public sealed class ApiResponse<T>
+{
+    public bool IsSuccess { get; init; }
+    public int StatusCode { get; init; }
+    public T? Data { get; init; }
+    public string? RawBody { get; init; }
+    public IReadOnlyDictionary<string, string> Headers { get; init; }
+        = new Dictionary<string, string>();
+    public string? ErrorCode { get; init; }
+    public string? ErrorMessage { get; init; }
+    public TimeSpan Elapsed { get; init; }
+}
+
+public readonly struct Unit
+{
+    public static readonly Unit Value = default;
+}

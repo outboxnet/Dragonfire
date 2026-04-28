@@ -1,0 +1,19 @@
+namespace {{ namespace }};
+
+public sealed class {{ prefix }}ClientOptions
+{
+    public string BaseUrl { get; set; } = "{{ base_url }}";
+
+    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Headers applied to every outgoing request. Pre-populated from headers
+    /// observed on every request in the source Postman collection.
+    /// </summary>
+    public Dictionary<string, string> CommonHeaders { get; set; } = new()
+    {
+{{~ for h in headers ~}}
+        { Constants.Headers.{{ h.identifier }}, "{{ h.value }}" },
+{{~ end ~}}
+    };
+}

@@ -1,0 +1,272 @@
+using System.Diagnostics;
+using System.Net.Http.Json;
+using System.Text.Json;
+using {{ namespace }}.Models;
+using Microsoft.Extensions.Options;
+
+namespace {{ namespace }};
+
+public sealed class {{ prefix }}Client : I{{ prefix }}Client
+{
+    private readonly HttpClient _http;
+    private readonly {{ prefix }}ClientOptions _options;
+    private readonly I{{ prefix }}RequestSigner _signer;
+    private readonly I{{ prefix }}HttpLogger _logger;
+    private readonly I{{ prefix }}ErrorHandler _errorHandler;
+    private readonly JsonSerializerOptions _json = new(JsonSerializerDefaults.Web);
+
+    public {{ prefix }}Client(
+        HttpClient http,
+        IOptions<{{ prefix }}ClientOptions> options,
+        I{{ prefix }}RequestSigner signer,
+        I{{ prefix }}HttpLogger logger,
+        I{{ prefix }}ErrorHandler errorHandler)
+    {
+        _http         = http;
+        _options      = options.Value;
+        _signer       = signer;
+        _logger       = logger;
+        _errorHandler = errorHandler;
+
+        if (_http.BaseAddress is null && !string.IsNullOrEmpty(_options.BaseUrl))
+            _http.BaseAddress = new Uri(_options.BaseUrl);
+    }
+
+{{~ for op in operations ~}}
+    // --- {{ op.http_method }} {{ op.path_template }} ---
+    public Task<ApiResponse<{{ op.response_type }}>> {{ op.method_name }}(
+{{~ for p in op.parameters ~}}
+        {{ p.csharp_type }} {{ p.name }},
+{{~ end ~}}
+        Action<HttpResponseMessage>? onResponse = null,
+        I{{ prefix }}RequestSigner? signerOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+{{~ if op.has_path_params || op.has_query_params ~}}
+        var path = Endpoints.{{ op.name }};
+{{~ for pp in op.path_params ~}}
+        path = path.Replace("{ {{- pp.token -}} }", Uri.EscapeDataString({{ pp.csharp_name }}{{ pp.to_string_suffix }}));
+{{~ end ~}}
+{{~ if op.has_query_params ~}}
+        var qs = new List<string>({{ op.query_params.size }});
+{{~ for q in op.query_params ~}}
+        if ({{ q.name }} is not null) qs.Add($"{{ q.json_name }}={ {{- q.format_expr -}} }");
+{{~ end ~}}
+        if (qs.Count > 0) path += "?" + string.Join("&", qs);
+{{~ end ~}}
+{{~ else ~}}
+        const string path = Endpoints.{{ op.name }};
+{{~ end ~}}
+
+{{~ if op.body_kind == "json" ~}}
+        HttpContent? content = JsonContent.Create(body, options: _json);
+{{~ else if op.body_kind == "form_url_encoded" ~}}
+        var form = new List<KeyValuePair<string, string>>({{ op.form_fields.size }});
+{{~ for f in op.form_fields ~}}
+{{~ if f.is_nullable ~}}
+        if (body.{{ f.name }} is not null) form.Add(new KeyValuePair<string, string>("{{ f.json_name }}", body.{{ f.name }}{{ if !f.is_string }}.ToString(){{ end }}));
+{{~ else ~}}
+        form.Add(new KeyValuePair<string, string>("{{ f.json_name }}", body.{{ f.name }}{{ if !f.is_string }}.ToString(){{ end }}));
+{{~ end ~}}
+{{~ end ~}}
+        HttpContent? content = new FormUrlEncodedContent(form);
+{{~ else if op.body_kind == "form_data" ~}}
+        var multipart = new MultipartFormDataContent();
+{{~ for f in op.form_fields ~}}
+{{~ if f.is_file ~}}
+        if (body.{{ f.name }} is not null) multipart.Add(new StreamContent(body.{{ f.name }}), "{{ f.json_name }}", "{{ f.json_name }}");
+{{~ else if f.is_nullable ~}}
+        if (body.{{ f.name }} is not null) multipart.Add(new StringContent(body.{{ f.name }}{{ if !f.is_string }}.ToString(){{ end }}), "{{ f.json_name }}");
+{{~ else ~}}
+        multipart.Add(new StringContent(body.{{ f.name }}{{ if !f.is_string }}.ToString(){{ end }}), "{{ f.json_name }}");
+{{~ end ~}}
+{{~ end ~}}
+        HttpContent? content = multipart;
+{{~ else ~}}
+        HttpContent? content = null;
+{{~ end ~}}
+
+        return SendAsync<{{ op.response_type }}>(
+            HttpMethod.{{ op.http_method_pascal }},
+            path,
+            content,
+            extraHeaders: null,
+            operationName: nameof({{ op.method_name }}),
+            onResponse,
+            signerOverride,
+            cancellationToken);
+    }
+
+{{ end ~}}
+    // --- Generic JSON escape hatch ---
+    public Task<ApiResponse<TResponse>> SendJsonAsync<TRequest, TResponse>(
+        HttpMethod method,
+        string path,
+        TRequest? body,
+        IDictionary<string, string>? extraHeaders = null,
+        string? operationName = null,
+        Action<HttpResponseMessage>? onResponse = null,
+        I{{ prefix }}RequestSigner? signerOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        HttpContent? content = body is null ? null : JsonContent.Create(body, options: _json);
+        return SendAsync<TResponse>(
+            method,
+            path,
+            content,
+            extraHeaders,
+            operationName ?? $"{method} {path}",
+            onResponse,
+            signerOverride,
+            cancellationToken);
+    }
+
+    private async Task<ApiResponse<TResponse>> SendAsync<TResponse>(
+        HttpMethod method,
+        string path,
+        HttpContent? content,
+        IDictionary<string, string>? extraHeaders,
+        string operationName,
+        Action<HttpResponseMessage>? onResponse,
+        I{{ prefix }}RequestSigner? signerOverride,
+        CancellationToken cancellationToken)
+    {
+        var op = operationName;
+        var sw = Stopwatch.StartNew();
+
+        using var request = new HttpRequestMessage(method, path);
+
+        // 1. Common headers (from options, sourced from the collection at gen time).
+        foreach (var kv in _options.CommonHeaders)
+            request.Headers.TryAddWithoutValidation(kv.Key, kv.Value);
+
+        // 2. Per-call overrides.
+        if (extraHeaders is not null)
+            foreach (var kv in extraHeaders)
+                request.Headers.TryAddWithoutValidation(kv.Key, kv.Value);
+
+        // 3. Body.
+        if (content is not null && method != HttpMethod.Get && method != HttpMethod.Delete)
+            request.Content = content;
+
+        // 4. Pluggable signing -- per-call override wins over DI singleton.
+        var signer = signerOverride ?? _signer;
+        await signer.SignAsync(request, op, cancellationToken).ConfigureAwait(false);
+
+        await _logger.BeforeRequestAsync(request, op, cancellationToken).ConfigureAwait(false);
+
+        HttpResponseMessage? response = null;
+        try
+        {
+            response = await _http.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            sw.Stop();
+            await _logger.AfterResponseAsync(response, op, sw.Elapsed, cancellationToken).ConfigureAwait(false);
+
+            // Per-call inspection hook -- caller can capture headers, cookies, etc.
+            // Swallow callback exceptions so user code can't break the response pipeline.
+            if (onResponse is not null)
+            {
+                try { onResponse(response); }
+                catch (Exception cbEx) { await _logger.OnErrorAsync(cbEx, op, cancellationToken).ConfigureAwait(false); }
+            }
+
+            var raw = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            var headers = BuildHeaderDictionary(response);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TResponse? data = default;
+                if (typeof(TResponse) == typeof(Unit))
+                    data = (TResponse)(object)Unit.Value;
+                else if (!string.IsNullOrWhiteSpace(raw))
+                    data = JsonSerializer.Deserialize<TResponse>(raw, _json);
+
+                return new ApiResponse<TResponse>
+                {
+                    IsSuccess  = true,
+                    StatusCode = (int)response.StatusCode,
+                    Data       = data,
+                    RawBody    = raw,
+                    Headers    = headers,
+                    Elapsed    = sw.Elapsed,
+                };
+            }
+
+            // Non-2xx -- try to extract { code, message } from a JSON body.
+            string? errCode = null, errMsg = null;
+            try
+            {
+                using var doc = JsonDocument.Parse(raw);
+                if (doc.RootElement.ValueKind == JsonValueKind.Object)
+                {
+                    if (doc.RootElement.TryGetProperty("code",    out var c)) errCode = c.GetString();
+                    if (doc.RootElement.TryGetProperty("message", out var m)) errMsg  = m.GetString();
+                }
+            }
+            catch { /* not JSON, leave as null */ }
+
+            var failure = new ApiResponse<TResponse>
+            {
+                IsSuccess    = false,
+                StatusCode   = (int)response.StatusCode,
+                RawBody      = raw,
+                Headers      = headers,
+                ErrorCode    = errCode,
+                ErrorMessage = errMsg ?? response.ReasonPhrase,
+                Elapsed      = sw.Elapsed,
+            };
+
+            await _errorHandler.HandleAsync(new {{ prefix }}ErrorContext
+            {
+                OperationName = op,
+                StatusCode    = failure.StatusCode,
+                RawBody       = raw,
+                ErrorCode     = errCode,
+                ErrorMessage  = failure.ErrorMessage,
+                Headers       = headers,
+                Elapsed       = sw.Elapsed,
+            }, cancellationToken).ConfigureAwait(false);
+
+            return failure;
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            await _logger.OnErrorAsync(ex, op, cancellationToken).ConfigureAwait(false);
+
+            await _errorHandler.HandleAsync(new {{ prefix }}ErrorContext
+            {
+                OperationName = op,
+                StatusCode    = 0,
+                ErrorCode     = "transport.error",
+                ErrorMessage  = ex.Message,
+                Elapsed       = sw.Elapsed,
+                Exception     = ex,
+            }, cancellationToken).ConfigureAwait(false);
+
+            return new ApiResponse<TResponse>
+            {
+                IsSuccess    = false,
+                StatusCode   = 0,
+                ErrorCode    = "transport.error",
+                ErrorMessage = ex.Message,
+                Elapsed      = sw.Elapsed,
+            };
+        }
+        finally
+        {
+            response?.Dispose();
+        }
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildHeaderDictionary(HttpResponseMessage response)
+    {
+        var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var h in response.Headers)
+            dict[h.Key] = string.Join(",", h.Value);
+        foreach (var h in response.Content.Headers)
+            dict[h.Key] = string.Join(",", h.Value);
+        return dict;
+    }
+}
