@@ -1,4 +1,5 @@
-﻿using Dragonfire.Caching.Attributes;
+﻿using Dragonfire.Caching.Abstractions;
+using Dragonfire.Caching.Attributes;
 
 namespace CacheTesting.Service
 {
@@ -15,7 +16,7 @@ namespace CacheTesting.Service
         Task<IReadOnlyCollection<DataModel>> GetAsync(string? param);
     }
 
-    public class DataService : IDataService
+    public class DataService : IDataService, ICacheable
     {
         public async Task<IReadOnlyCollection<DataModel>> GetAsync(string? param)
         {

@@ -3,7 +3,7 @@ namespace Dragonfire.Caching.Attributes;
 /// <summary>
 /// When applied to a method, invalidates cache entries after the method completes.
 /// May be applied multiple times to invalidate several keys/tags.
-/// Used with the <see cref="Core.CachingProxy{T}"/> decorator.
+/// Read at compile time by <c>Dragonfire.Caching.Generator</c>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
 public sealed class CacheInvalidateAttribute : Attribute

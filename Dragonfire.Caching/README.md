@@ -39,6 +39,8 @@ Dragonfire.Caching.Distributed             ← any IDistributedCache backend
 Dragonfire.Caching.Hybrid                  ← L1 memory + L2 distributed, auto-promote
 Dragonfire.Caching.Redis                   ← Redis-backed tag index (distributed invalidation)
 Dragonfire.Caching.Serialization.Protobuf  ← swap JSON for Protobuf
+Dragonfire.Caching.Generator               ← compile-time proxy generator (replaces DispatchProxy)
+Dragonfire.Caching.Grpc                    ← cache-aside interceptors for gRPC client + server
 ```
 
 ```
@@ -558,6 +560,124 @@ builder.Services.AddOpenTelemetry()
         .AddMeter("Dragonfire.Caching")
         .AddPrometheusExporter());
 ```
+
+---
+
+## Caching gRPC calls
+
+`Dragonfire.Caching` integrates with gRPC two different ways. Pick whichever fits your codebase — they are not mutually exclusive.
+
+### Option B — wrap the proto client behind your own interface (zero new packages)
+
+The compile-time generator (`Dragonfire.Caching.Generator`) only needs an interface that implements `ICacheable`. Because proto-generated clients are sealed and you can't add `[Cache]` to them, you write a thin wrapper that *is* attribute-decorated, and let the generator produce the proxy:
+
+```csharp
+using Dragonfire.Caching.Abstractions;
+using Dragonfire.Caching.Attributes;
+using Order;   // proto-generated namespace
+
+public interface IOrderClient : ICacheable
+{
+    [Cache(SlidingExpirationSeconds = 300, KeyTemplate = "order:{tenantId}:{orderId}",
+           Tags = new[] { "tenant:{tenantId}" })]
+    Task<OrderReply> GetOrderAsync(string tenantId, string orderId);
+
+    [CacheInvalidate("order:{tenantId}:*")]
+    Task UpdateOrderAsync(string tenantId, OrderReply order);
+}
+
+public sealed class OrderClient(OrderService.OrderServiceClient inner)
+    : IOrderClient, ICacheable
+{
+    public Task<OrderReply> GetOrderAsync(string tenantId, string orderId) =>
+        inner.GetOrderAsync(new GetOrderRequest { TenantId = tenantId, OrderId = orderId })
+             .ResponseAsync;
+
+    public Task UpdateOrderAsync(string tenantId, OrderReply order) =>
+        inner.UpdateOrderAsync(new UpdateOrderRequest { TenantId = tenantId, Order = order })
+             .ResponseAsync;
+}
+```
+
+Registration is unchanged from any other `ICacheable`:
+
+```csharp
+builder.Services.AddGrpcClient<OrderService.OrderServiceClient>(o =>
+    o.Address = new Uri("https://order-service:5001"));
+builder.Services.AddScoped<IOrderClient, OrderClient>();
+
+builder.Services.AddDragonfireMemoryCache().AddDragonfireCaching();
+builder.Services.AddDragonfireGeneratedCaching();   // wraps OrderClient automatically
+```
+
+Use this when:
+- You already have a domain layer and the gRPC client is just one of several backends.
+- You want full attribute-driven semantics (templates, tags, multiple `[CacheInvalidate]`).
+- You don't want a runtime gRPC interceptor in the call path.
+
+### Option D — `Dragonfire.Caching.Grpc` interceptors (no wrapper required)
+
+When you can't or won't write a wrapper — for example you call the proto client directly throughout your code — install `Dragonfire.Caching.Grpc`. It ships two `Grpc.Core.Interceptors.Interceptor` subclasses that read scalar fields from the proto request via descriptor reflection (same approach as `Dragonfire.Logging.Grpc`) and apply cache-aside / invalidation rules registered in DI.
+
+**Client side — cache outbound unary calls:**
+
+```csharp
+using Dragonfire.Caching.Grpc.Configuration;
+using Dragonfire.Caching.Grpc.Extensions;
+using Dragonfire.Caching.Grpc.Interceptors;
+
+builder.Services.AddDragonfireMemoryCache().AddDragonfireCaching();
+
+builder.Services.AddDragonfireGrpcClientCaching(options =>
+{
+    options.Cache(new GrpcCacheRule
+    {
+        FullMethod        = "/order.OrderService/GetOrder",
+        KeyTemplate       = "order:{tenantId}:{orderId}",
+        SlidingExpiration = TimeSpan.FromMinutes(5),
+        Tags              = new[] { "tenant:{tenantId}" }
+    });
+
+    options.Invalidate(new GrpcInvalidateRule
+    {
+        FullMethod  = "/order.OrderService/UpdateOrder",
+        KeyPatterns = new[] { "order:{tenantId}:*" },
+        Tags        = new[] { "tenant:{tenantId}" }
+    });
+});
+
+builder.Services.AddGrpcClient<OrderService.OrderServiceClient>(o =>
+        o.Address = new Uri("https://order-service:5001"))
+    .AddInterceptor<DragonfireClientCachingInterceptor>();
+```
+
+**Server side — short-circuit inbound unary handlers:**
+
+```csharp
+builder.Services.AddDragonfireGrpcServerCaching(options =>
+{
+    options.Cache(new GrpcCacheRule
+    {
+        FullMethod        = "/order.OrderService/GetOrder",
+        KeyTemplate       = "order:{tenantId}:{orderId}",
+        SlidingExpiration = TimeSpan.FromMinutes(5)
+    });
+});
+
+builder.Services.AddGrpc(o =>
+    o.Interceptors.Add<DragonfireServerCachingInterceptor>());
+```
+
+Behaviour:
+- **Unary calls only.** Streaming (client-streaming, server-streaming, bidi) passes through untouched — caching streamed payloads is not safe in a generic way.
+- **Cache keys** are built by the registered `ICacheKeyStrategy`. Templates use proto JSON field names (lowerCamelCase), e.g. `{tenantId}` for proto field `tenant_id`. With no template, the auto-key is `Service.Method(field=value,...)`.
+- **`IncludeFields`** narrows which scalar fields participate in the key — useful when the request carries a correlation ID or auth token that would make every key unique.
+- **`Tags`** templates are also resolved from the request, so a single tag like `"tenant:{tenantId}"` flushes everything for one tenant.
+
+Use this when:
+- You don't own the call sites (libraries, generated clients passed around).
+- You want server-side caching for read-heavy RPCs without changing handler code.
+- You want consistent rules driven from configuration rather than attributes.
 
 ---
 

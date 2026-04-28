@@ -81,29 +81,4 @@ public static class DragonfireCachingExtensions
         services.AddSingleton<ICacheProvider, TProvider>();
         return services;
     }
-
-    /// <summary>
-    /// Wraps <typeparamref name="TImpl"/> in a <see cref="CachingProxy{T}"/> that applies
-    /// <c>[Cache]</c> and <c>[CacheInvalidate]</c> attributes automatically.
-    /// </summary>
-    public static IServiceCollection AddDragonFireCachedService<TInterface, TImpl>(
-        this IServiceCollection services,
-        Action<ICachingBuilder<TInterface>>? configure = null)
-        where TInterface : class
-        where TImpl : class, TInterface
-    {
-        services.AddSingleton<TImpl>();
-        services.AddSingleton<TInterface>(sp =>
-        {
-            var impl = sp.GetRequiredService<TImpl>();
-            var cache = sp.GetRequiredService<ICacheService>();
-            var keyStrategy = sp.GetRequiredService<ICacheKeyStrategy>();
-
-            var builder = new CachingProxyBuilder<TInterface>(cache, keyStrategy);
-            configure?.Invoke(builder);
-            return builder.Wrap(impl);
-        });
-
-        return services;
-    }
 }

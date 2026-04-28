@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PackageId>Dragonfire.Caching.Grpc</PackageId>
+    <Authors>Dragonfire</Authors>
+    <Description>gRPC client and server caching interceptors for Dragonfire.Caching.
+Adds cache-aside semantics to outbound and inbound unary gRPC calls. Cache keys are built
+from proto-generated request fields via Google.Protobuf descriptor reflection — no
+[Cache] attributes are required on proto-generated types. Per-method rules (TTL, key
+template, tags, invalidation patterns) are configured at DI registration time.</Description>
+    <PackageTags>caching;grpc;interceptor;cache-aside;grpc-dotnet</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/dragonfire/caching</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Caching\Dragonfire.Caching.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Grpc.Core.Api  — Interceptor base class, ServerCallContext, ClientInterceptorContext,
+                       AsyncUnaryCall<T>, UnaryServerMethod<T,T>.
+      Google.Protobuf — IMessage + Descriptor reflection to read scalar fields from the
+                        proto-generated request used to build deterministic cache keys.
+    -->
+    <PackageReference Include="Grpc.Core.Api"                                              Version="2.62.0" />
+    <PackageReference Include="Google.Protobuf"                                            Version="3.26.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"      Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
+  </ItemGroup>
+
+</Project>

@@ -1,69 +1,69 @@
-using System.Reflection;
 using System.Text;
-using Dragonfire.Caching.Attributes;
 
 namespace Dragonfire.Caching.Strategies;
 
 /// <summary>
-/// Generates cache keys from method signatures and arguments.
+/// Generates cache keys from named method arguments.
 /// Replace the default implementation by registering a custom <see cref="ICacheKeyStrategy"/> in DI.
+/// Generated proxies pass arguments by name (no <see cref="System.Reflection.MethodInfo"/> reflection).
 /// </summary>
 public interface ICacheKeyStrategy
 {
     /// <summary>
     /// Build a cache key for a method call. When <paramref name="keyTemplate"/> is provided
-    /// it takes precedence; otherwise the key is auto-generated.
+    /// it takes precedence; otherwise the key is auto-generated as
+    /// <c>ServiceName.MethodName(name=value,...)</c>.
     /// </summary>
-    string GenerateKey(MethodInfo method, object?[] arguments, string? keyTemplate = null);
+    /// <param name="serviceName">The owning interface or class name (no namespace).</param>
+    /// <param name="methodName">The method name.</param>
+    /// <param name="arguments">
+    /// Named argument map. The generator only includes parameters that participate in the
+    /// key (all parameters by default, or only <c>[CacheKey]</c>-marked ones if present).
+    /// Insertion order is preserved when iterated.
+    /// </param>
+    /// <param name="keyTemplate">Optional template with <c>{name}</c> placeholders.</param>
+    string GenerateKey(string serviceName, string methodName,
+        IReadOnlyDictionary<string, object?> arguments, string? keyTemplate = null);
 
-    /// <summary>Resolve a cache key/pattern string (may contain <c>{name}</c> placeholders).</summary>
-    string GeneratePattern(MethodInfo method, object?[] arguments, string pattern);
+    /// <summary>
+    /// Resolve a template string (may contain <c>{name}</c> placeholders) using the
+    /// supplied argument map. Used for invalidation patterns and tag templates.
+    /// </summary>
+    string GeneratePattern(string template, IReadOnlyDictionary<string, object?> arguments);
 }
 
-/// <summary>Default key strategy: uses templates when provided, otherwise <c>Type.Method(param=value,...)</c>.</summary>
+/// <summary>Default key strategy: uses templates when provided, otherwise <c>ServiceName.MethodName(name=value,...)</c>.</summary>
 public sealed class DefaultCacheKeyStrategy : ICacheKeyStrategy
 {
-    public string GenerateKey(MethodInfo method, object?[] arguments, string? keyTemplate = null)
+    public string GenerateKey(string serviceName, string methodName,
+        IReadOnlyDictionary<string, object?> arguments, string? keyTemplate = null)
     {
         if (!string.IsNullOrEmpty(keyTemplate))
-            return ResolveTemplate(method, arguments, keyTemplate);
+            return ResolveTemplate(keyTemplate!, arguments);
 
         var sb = new StringBuilder();
-        sb.Append(method.DeclaringType?.Name).Append('.').Append(method.Name).Append('(');
+        sb.Append(serviceName).Append('.').Append(methodName).Append('(');
 
-        var parameters = method.GetParameters();
-        var cacheKeyParams = parameters
-            .Select((p, i) => (p, i))
-            .Where(x => x.p.GetCustomAttribute<CacheKeyAttribute>() != null || !parameters.Any(p => p.GetCustomAttribute<CacheKeyAttribute>() != null))
-            .ToArray();
-
-        for (int j = 0; j < cacheKeyParams.Length; j++)
+        var first = true;
+        foreach (var kv in arguments)
         {
-            if (j > 0) sb.Append(',');
-            var (p, i) = cacheKeyParams[j];
-            var alias = p.GetCustomAttribute<CacheKeyAttribute>()?.Name ?? p.Name;
-            sb.Append(alias).Append('=').Append(GetStableValue(arguments.ElementAtOrDefault(i)));
+            if (!first) sb.Append(',');
+            first = false;
+            sb.Append(kv.Key).Append('=').Append(GetStableValue(kv.Value));
         }
 
         sb.Append(')');
         return sb.ToString();
     }
 
-    public string GeneratePattern(MethodInfo method, object?[] arguments, string pattern)
-        => ResolveTemplate(method, arguments, pattern);
+    public string GeneratePattern(string template, IReadOnlyDictionary<string, object?> arguments)
+        => ResolveTemplate(template, arguments);
 
-    private static string ResolveTemplate(MethodInfo method, object?[] arguments, string template)
+    private static string ResolveTemplate(string template, IReadOnlyDictionary<string, object?> arguments)
     {
         var result = template;
-        var parameters = method.GetParameters();
-
-        for (int i = 0; i < parameters.Length; i++)
-        {
-            result = result
-                .Replace($"{{{parameters[i].Name}}}", GetStableValue(arguments.ElementAtOrDefault(i)))
-                .Replace($"{{{i}}}", GetStableValue(arguments.ElementAtOrDefault(i)));
-        }
-
+        foreach (var kv in arguments)
+            result = result.Replace($"{{{kv.Key}}}", GetStableValue(kv.Value));
         return result;
     }
 

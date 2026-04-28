@@ -1,5 +1,6 @@
 using CacheTesting.Service;
 using Dragonfire.Caching.Extensions;
+using Dragonfire.Caching.Generated;
 using Dragonfire.Caching.Memory.Extensions;
 
 namespace SampleApp
@@ -25,7 +26,9 @@ namespace SampleApp
                     o.ConsumerCount = 2;
                 }));
 
-            builder.Services.AddDragonFireCachedService<IDataService, DataService>();
+            // Wraps every ICacheable registration with the source-generated caching proxy.
+            // Must be called AFTER all service registrations.
+            builder.Services.AddDragonfireGeneratedCaching();
 
 
             var app = builder.Build();

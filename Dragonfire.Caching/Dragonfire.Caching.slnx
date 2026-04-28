@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="SampleApp/SampleApp.csproj" Id="c69b3fd9-3580-43b2-86ed-b76e2b98f439" />
+    <Project Path="src/Dragonfire.Caching/Dragonfire.Caching.csproj" />
+    <Project Path="src/Dragonfire.Caching.Generator/Dragonfire.Caching.Generator.csproj" />
+    <Project Path="src/Dragonfire.Caching.Grpc/Dragonfire.Caching.Grpc.csproj" />
+    <Project Path="src/Dragonfire.Caching.Memory/Dragonfire.Caching.Memory.csproj" />
+    <Project Path="src/Dragonfire.Caching.Distributed/Dragonfire.Caching.Distributed.csproj" />
+    <Project Path="src/Dragonfire.Caching.Hybrid/Dragonfire.Caching.Hybrid.csproj" />
+    <Project Path="src/Dragonfire.Caching.Redis/Dragonfire.Caching.Redis.csproj" />
+    <Project Path="src/Dragonfire.Caching.Serialization.Protobuf/Dragonfire.Caching.Serialization.Protobuf.csproj" />
+  </Folder>
+</Solution>

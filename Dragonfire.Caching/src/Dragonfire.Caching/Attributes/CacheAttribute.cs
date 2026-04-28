@@ -1,8 +1,8 @@
 namespace Dragonfire.Caching.Attributes;
 
 /// <summary>
-/// Marks a method whose return value should be cached.
-/// Used with the <see cref="Core.CachingProxy{T}"/> decorator.
+/// Marks a method whose return value should be cached. Read at compile time by
+/// <c>Dragonfire.Caching.Generator</c> to emit a wrapper that calls <c>ICacheService.GetOrAddAsync</c>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = true)]
 public sealed class CacheAttribute : Attribute
