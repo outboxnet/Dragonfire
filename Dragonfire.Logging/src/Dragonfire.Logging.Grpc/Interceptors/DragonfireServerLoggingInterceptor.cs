@@ -177,7 +177,7 @@ namespace Dragonfire.Logging.Grpc.Interceptors
         // Both sides stream messages. No single request or response object exists.
         // We log elapsed across the full duplex session duration.
 
-        public override async Task BidiStreamingServerHandler<TRequest, TResponse>(
+        public override async Task DuplexStreamingServerHandler<TRequest, TResponse>(
             IAsyncStreamReader<TRequest> requestStream,
             IServerStreamWriter<TResponse> responseStream,
             ServerCallContext context,

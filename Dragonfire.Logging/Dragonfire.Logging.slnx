@@ -4,6 +4,7 @@
     <Project Path="src/Dragonfire.Logging.ApplicationInsights/Dragonfire.Logging.ApplicationInsights.csproj" />
     <Project Path="src/Dragonfire.Logging.AspNetCore/Dragonfire.Logging.AspNetCore.csproj" />
     <Project Path="src/Dragonfire.Logging.Generator/Dragonfire.Logging.Generator.csproj" />
+    <Project Path="src/Dragonfire.Logging.Grpc/Dragonfire.Logging.Grpc.csproj" />
     <Project Path="src/Dragonfire.Logging/Dragonfire.Logging.csproj" />
   </Folder>
 </Solution>
