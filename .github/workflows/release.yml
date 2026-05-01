@@ -56,7 +56,7 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          ./pack-all.sh \
+          bash ./pack-all.sh \
             --version "${{ steps.ver.outputs.version }}" \
             --push \
             --api-key "$NUGET_API_KEY" \
