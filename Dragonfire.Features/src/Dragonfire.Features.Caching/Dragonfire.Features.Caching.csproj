@@ -9,7 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dragonfire.Caching" Version="8.3.0" />
+    <!--
+      Cross-suite NuGet dependency. Pinned to $(Version) so Features.Caching
+      always references the matching Dragonfire.Caching version that ships in
+      the same release. CI passes -p:Version=X via root Directory.Build.props;
+      NuGet then resolves either from the dragonfire-local source (./artifacts)
+      during a full release run, or from nuget.org when releasing Features
+      stand-alone (the matching Dragonfire.Caching must already be published).
+    -->
+    <PackageReference Include="Dragonfire.Caching" Version="$(Version)" />
   </ItemGroup>
 
   <ItemGroup>
