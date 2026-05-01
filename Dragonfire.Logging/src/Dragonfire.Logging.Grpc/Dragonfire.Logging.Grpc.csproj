@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <PackageId>Dragonfire.Logging.Grpc</PackageId>
-    <Authors>Dragonfire</Authors>
     <Description>gRPC server and client logging interceptors for Dragonfire.Logging.
 Provides structured customDimensions logging for all gRPC call types (unary, client-streaming,
 server-streaming, bidirectional) using ILogger.BeginScope.  Proto-generated request/response
@@ -14,8 +13,6 @@ required on proto-generated types.</Description>
     <PackageTags>logging;grpc;interceptor;structured-logging;grpc-dotnet</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/dragonfire/logging</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

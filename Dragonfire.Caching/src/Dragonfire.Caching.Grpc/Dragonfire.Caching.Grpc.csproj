@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <PackageId>Dragonfire.Caching.Grpc</PackageId>
-    <Authors>Dragonfire</Authors>
     <Description>gRPC client and server caching interceptors for Dragonfire.Caching.
 Adds cache-aside semantics to outbound and inbound unary gRPC calls. Cache keys are built
 from proto-generated request fields via Google.Protobuf descriptor reflection — no
@@ -14,8 +13,6 @@ template, tags, invalidation patterns) are configured at DI registration time.</
     <PackageTags>caching;grpc;interceptor;cache-aside;grpc-dotnet</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/dragonfire/caching</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

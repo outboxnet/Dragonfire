@@ -13,7 +13,6 @@
 
     <!-- NuGet metadata -->
     <PackageId>Dragonfire.Logging.Generator</PackageId>
-    <Authors>Dragonfire</Authors>
     <Description>
       Roslyn source generator for Dragonfire.Logging.
       Generates compile-time logging proxies for services implementing ILoggable,

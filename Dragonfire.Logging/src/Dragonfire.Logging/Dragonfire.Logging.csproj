@@ -5,14 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <PackageId>Dragonfire.Logging</PackageId>
-    <Authors>Dragonfire</Authors>
     <Description>Core structured logging for .NET — service-layer interception via ILoggable, sensitive-data redaction, and a flexible log pipeline. Framework-agnostic; use Dragonfire.Logging.AspNetCore for HTTP request/response logging.</Description>
     <PackageTags>logging;structured-logging;interceptor;scrutor;castle;iloggable</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/dragonfire/logging</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -5,13 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <PackageId>Dragonfire.Logging.AspNetCore</PackageId>
-    <Authors>Dragonfire</Authors>
     <Description>ASP.NET Core integration for Dragonfire.Logging — automatic HTTP request/response logging via a global MVC action filter (Web API + MVC controllers) and a lightweight middleware for minimal-API projects. Install this package in your web host; install Dragonfire.Logging in pure class libraries.</Description>
     <PackageTags>logging;aspnetcore;webapi;mvc;middleware;structured-logging;request-logging</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/dragonfire/logging</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

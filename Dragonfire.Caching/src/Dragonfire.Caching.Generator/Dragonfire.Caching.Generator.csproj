@@ -13,7 +13,6 @@
 
     <!-- NuGet metadata -->
     <PackageId>Dragonfire.Caching.Generator</PackageId>
-    <Authors>Dragonfire</Authors>
     <Description>
       Roslyn source generator for Dragonfire.Caching.
       Generates compile-time caching proxies for services implementing ICacheable,
