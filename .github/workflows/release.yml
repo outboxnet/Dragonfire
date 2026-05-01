@@ -1,82 +1,156 @@
 name: release
 
-# Ships every Dragonfire.* package to NuGet.org at one shared version.
+# Manually-triggered release workflow.
 #
-# Trigger options:
-#   1. Push a tag like `v8.3.0`              → version comes from the tag
-#   2. Run manually via "workflow_dispatch"  → version typed into the input
+# Two modes via the `suite` input:
+#   * `all`        — pack and push every Dragonfire suite at one shared version
+#   * <suite name> — pack and push only that single suite (e.g. `Caching` ships
+#                    every project under Dragonfire.Caching/ at the given version)
+#
+# Cross-suite NuGet dependency:
+#   Dragonfire.Features.Caching has a <PackageReference> on Dragonfire.Caching
+#   that resolves through the dragonfire-local source (./artifacts/) declared
+#   in Dragonfire.Features/nuget.config. When `suite=all` we therefore pack
+#   Features LAST, after Caching's nupkg lands in artifacts/. When releasing
+#   Features standalone, the matching Dragonfire.Caching version must already
+#   be on nuget.org (each suite ships independently — that is the trade-off
+#   of the per-suite release model).
 #
 # Required repo secret:
-#   NUGET_API_KEY   — an API key on https://www.nuget.org/account/apikeys
-#                     scoped to "Push new packages and package versions" for
-#                     the Dragonfire.* glob.
+#   NUGET_API_KEY — https://www.nuget.org/account/apikeys, scoped to the
+#                   Dragonfire.* glob with "Push new packages and versions".
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
     inputs:
+      suite:
+        description: 'Which suite to release'
+        required: true
+        type: choice
+        options:
+          - all
+          - ApiClientGen
+          - Caching
+          - Features
+          - Inbox
+          - Logging
+          - Outbox
+          - Poller
+          - Saga
+          - Sync
+          - TenantContext
       version:
-        description: 'Package version to publish (e.g. 8.3.0 or 8.4.0-preview.1)'
+        description: 'Package version (e.g. 8.3.1 or 8.4.0-preview.1)'
         required: true
         type: string
 
 permissions:
-  contents: write   # needed to create a GitHub Release on tag push
+  contents: read
 
 jobs:
-  pack-and-push:
-    name: pack + push to nuget.org
+  release:
+    name: release ${{ inputs.suite }} @ ${{ inputs.version }}
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Resolve version
-        id: ver
+      - name: Plan suites
+        id: plan
         shell: bash
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/v}"
+          # Order matters: Features is packed last so its Dragonfire.Caching
+          # PackageReference resolves from artifacts/ via dragonfire-local.
+          if [[ "${{ inputs.suite }}" == "all" ]]; then
+            suites="ApiClientGen Caching Inbox Logging Outbox Poller Saga Sync TenantContext Features"
           else
-            VERSION="${{ inputs.version }}"
+            suites="${{ inputs.suite }}"
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing version: $VERSION"
+          echo "suites=$suites" >> "$GITHUB_OUTPUT"
+          echo "Planned suites: $suites"
 
-      - name: Pack + push every package
+      - name: Pack
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+          SUITES: ${{ steps.plan.outputs.suites }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          rm -f artifacts/*.nupkg artifacts/*.snupkg
+
+          for suite in $SUITES; do
+            dir="Dragonfire.$suite"
+            echo ""
+            echo "== Packing $dir at $VERSION =="
+
+            # Discover packable .csproj files inside the suite directory.
+            mapfile -t projects < <(
+              find "$dir" -name "*.csproj" \
+                -not -path "*/tests/*" -not -path "*/samples/*" \
+                -not -path "*/bin/*"   -not -path "*/obj/*" \
+              | while read -r f; do
+                  base=$(basename "$f")
+                  case "$base" in
+                    *Sample.csproj|*SampleApp.csproj) continue ;;
+                  esac
+                  if ! grep -qE '<IsPackable>\s*false\s*</IsPackable>' "$f"; then
+                    echo "$f"
+                  fi
+                done | sort
+            )
+
+            if [[ ${#projects[@]} -eq 0 ]]; then
+              echo "No packable projects under $dir." >&2
+              exit 1
+            fi
+
+            for p in "${projects[@]}"; do
+              name=$(basename "$p" .csproj)
+              echo "  -> $name"
+              dotnet pack "$p" \
+                --configuration Release \
+                --output artifacts \
+                --nologo --verbosity quiet \
+                "-p:Version=$VERSION"
+            done
+          done
+
+      - name: Summary
+        shell: bash
+        run: |
+          count=$(ls -1 artifacts/*.nupkg 2>/dev/null | wc -l)
+          echo "Produced $count package(s):"
+          ls -1 artifacts/*.nupkg | xargs -n1 basename
+
+      - name: Push to nuget.org
         shell: bash
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          bash ./pack-all.sh \
-            --version "${{ steps.ver.outputs.version }}" \
-            --push \
-            --api-key "$NUGET_API_KEY" \
-            --source "https://api.nuget.org/v3/index.json"
+          set -euo pipefail
+          if [[ -z "${NUGET_API_KEY:-}" ]]; then
+            echo "NUGET_API_KEY secret is not set." >&2
+            exit 1
+          fi
+
+          for pkg in artifacts/*.nupkg; do
+            echo "-> $(basename "$pkg")"
+            dotnet nuget push "$pkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source "https://api.nuget.org/v3/index.json" \
+              --skip-duplicate
+          done
 
       - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nupkgs-${{ steps.ver.outputs.version }}
+          name: nupkgs-${{ inputs.suite }}-${{ inputs.version }}
           path: |
-            artifacts/*.nupkg
-            artifacts/*.snupkg
-
-      - name: Create GitHub Release (tag push only)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Dragonfire ${{ steps.ver.outputs.version }}
-          tag_name: ${{ github.ref_name }}
-          generate_release_notes: true
-          files: |
             artifacts/*.nupkg
             artifacts/*.snupkg

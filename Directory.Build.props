@@ -23,10 +23,10 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Shared package metadata">
-    <Authors>Dragonfire Contributors</Authors>
+    <Authors>Lőrinc Sándor</Authors>
     <Company>Dragonfire</Company>
     <Product>Dragonfire</Product>
-    <Copyright>Copyright (c) Dragonfire Contributors</Copyright>
+    <Copyright>Copyright (c) Lőrinc Sándor</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/outboxnet/Dragonfire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/outboxnet/Dragonfire.git</RepositoryUrl>

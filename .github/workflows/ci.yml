@@ -1,5 +1,12 @@
 name: ci
 
+# Runs the test suite for every Dragonfire sub-suite that has tests.
+# Each suite builds and tests independently in parallel, so a failure in one
+# suite doesn't mask failures in the others (fail-fast: false).
+#
+# Sub-suites listed here are exactly those with a tests/ directory. Add a new
+# suite to the matrix when it gains its first test project.
+
 on:
   push:
     branches: [main]
@@ -7,34 +14,41 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: build + test
+  test:
+    name: test ${{ matrix.suite }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - Caching
+          - Inbox
+          - Logging
+          - Outbox
+          - Saga
+          - Sync
+          - TenantContext
+
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Build all packages (no push)
+      - name: Restore
         shell: bash
-        run: bash ./pack-all.sh
+        run: dotnet restore "Dragonfire.${{ matrix.suite }}/Dragonfire.${{ matrix.suite }}.slnx"
 
-      - name: Run tests for every solution
+      - name: Build
         shell: bash
         run: |
-          set -e
-          shopt -s nullglob
-          for sln in */*.slnx */*.sln; do
-            echo "== test: $sln =="
-            dotnet test "$sln" --configuration Release --no-restore --nologo
-          done
+          dotnet build "Dragonfire.${{ matrix.suite }}/Dragonfire.${{ matrix.suite }}.slnx" \
+            --configuration Release --no-restore --nologo
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nupkgs
-          path: artifacts/*.nupkg
+      - name: Test
+        shell: bash
+        run: |
+          dotnet test "Dragonfire.${{ matrix.suite }}/Dragonfire.${{ matrix.suite }}.slnx" \
+            --configuration Release --no-build --nologo \
+            --logger "console;verbosity=normal"
