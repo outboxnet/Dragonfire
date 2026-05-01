@@ -74,7 +74,19 @@ mapfile -t projects < <(
       if ! grep -qE '<IsPackable>\s*false\s*</IsPackable>' "$f"; then
         echo "$f"
       fi
-    done | sort
+    done \
+  | awk '{
+      # Tier order: anything that consumes sibling Dragonfire.* packages via
+      # PackageReference (resolved through the dragonfire-local NuGet source
+      # at ./artifacts/) must come AFTER its dependencies so the producing
+      # nupkg already exists when the consumer restores. Today only the
+      # Dragonfire.Features sub-suite has cross-suite NuGet dependencies, so
+      # we tier it last; if more sub-suites pick this pattern up, add them here.
+      if ($0 ~ /\/Dragonfire\.Features\//) print "2\t" $0
+      else                                  print "1\t" $0
+    }' \
+  | sort \
+  | cut -f2-
 )
 
 if [[ ${#projects[@]} -eq 0 ]]; then
@@ -95,19 +107,15 @@ mkdir -p "$OUTDIR"
 rm -f "$OUTDIR"/*.nupkg "$OUTDIR"/*.snupkg
 
 # ---------------------------------------------------------------------------
-# Build (unless skipped).
+# Build + pack (combined loop).
+#
+# Each iteration packs into $OUTDIR before the next project restores, so a
+# Dragonfire.* PackageReference resolved through the dragonfire-local source
+# (./artifacts/) finds the producer's nupkg already on disk. Splitting build
+# and pack into separate loops would leave artifacts/ empty during the build
+# phase and break cross-suite NuGet dependencies (NU1102).
 # ---------------------------------------------------------------------------
-if [[ $NO_BUILD -eq 0 ]]; then
-  echo "-- Build (Release) --"
-  for p in "${projects[@]}"; do
-    dotnet build "$p" -c "$CONFIG" --nologo --verbosity quiet -p:Version="$VERSION"
-  done
-fi
-
-# ---------------------------------------------------------------------------
-# Pack.
-# ---------------------------------------------------------------------------
-echo "-- Pack --"
+echo "-- Pack (Release) --"
 for p in "${projects[@]}"; do
   name=$(basename "$p" .csproj)
   echo "  -> $name"
