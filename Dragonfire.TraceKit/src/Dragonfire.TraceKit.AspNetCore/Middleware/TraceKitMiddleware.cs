@@ -152,8 +152,10 @@ public sealed class TraceKitMiddleware
     private static string? ResolveTenantId(HttpContext context)
     {
         if (context.Items.TryGetValue("TenantId", out var v) && v is string s) return s;
+
         return context.User?.FindFirst("tenant_id")?.Value
-            ?? context.User?.FindFirst("tid")?.Value;
+            ?? context.User?.FindFirst("tid")?.Value
+            ?? "Default";
     }
 
     private static string? ResolveUserId(HttpContext context)
