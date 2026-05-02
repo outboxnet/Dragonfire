@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Dragonfire.Spark.Cli</RootNamespace>
+    <AssemblyName>dragonfire-spark</AssemblyName>
+    <PackageId>Dragonfire.Spark</PackageId>
+    <Description>CLI tool that converts HAR (HTTP Archive) and Charles Proxy JSON exports into Postman v2.1 collections.</Description>
+    <PackageTags>har;charles;postman;collection;converter;tool</PackageTags>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dragonfire-spark</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Spark.Core\Dragonfire.Spark.Core.csproj" />
+  </ItemGroup>
+
+</Project>

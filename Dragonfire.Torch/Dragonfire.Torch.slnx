@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.Torch.Core/Dragonfire.Torch.Core.csproj" />
+    <Project Path="src/Dragonfire.Torch.Cli/Dragonfire.Torch.Cli.csproj" />
+  </Folder>
+</Solution>

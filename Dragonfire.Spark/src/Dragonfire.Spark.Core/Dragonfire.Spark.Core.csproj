@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.Spark</RootNamespace>
+    <AssemblyName>Dragonfire.Spark.Core</AssemblyName>
+    <PackageId>Dragonfire.Spark.Core</PackageId>
+    <Description>Core engine for Dragonfire.Spark — converts HAR (HTTP Archive) and Charles Proxy JSON exports into Postman v2.1 collections.</Description>
+    <PackageTags>har;charles;postman;collection;converter;http</PackageTags>
+  </PropertyGroup>
+
+</Project>

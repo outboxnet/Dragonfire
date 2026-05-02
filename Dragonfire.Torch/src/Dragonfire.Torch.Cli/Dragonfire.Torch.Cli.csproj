@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Dragonfire.Torch.Cli</RootNamespace>
+    <AssemblyName>dragonfire-torch</AssemblyName>
+    <PackageId>Dragonfire.Torch</PackageId>
+    <Description>Standalone CLI that consumes a Postman v2.1 collection and generates a typed C# HTTP client library (interface + class, models, endpoints, options, pluggable signing/logging seams).</Description>
+    <PackageTags>postman;codegen;http-client;dotnet;tool</PackageTags>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dragonfire-torch</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.Torch.Core\Dragonfire.Torch.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

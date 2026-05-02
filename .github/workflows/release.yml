@@ -29,7 +29,8 @@ on:
         type: choice
         options:
           - all
-          - ApiClientGen
+          - Torch
+          - Spark
           - Caching
           - Features
           - Inbox
@@ -66,7 +67,7 @@ jobs:
           # Order matters: Features is packed last so its Dragonfire.Caching
           # PackageReference resolves from artifacts/ via dragonfire-local.
           if [[ "${{ inputs.suite }}" == "all" ]]; then
-            suites="ApiClientGen Caching Inbox Logging Outbox Poller Saga Sync TenantContext Features"
+            suites="Torch Caching Inbox Logging Outbox Poller Saga Sync TenantContext Features"
           else
             suites="${{ inputs.suite }}"
           fi

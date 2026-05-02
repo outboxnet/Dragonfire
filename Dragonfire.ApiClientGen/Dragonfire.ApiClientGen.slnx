@@ -1,6 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Dragonfire.ApiClientGen.Core/Dragonfire.ApiClientGen.Core.csproj" />
-    <Project Path="src/Dragonfire.ApiClientGen.Cli/Dragonfire.ApiClientGen.Cli.csproj" />
-  </Folder>
-</Solution>

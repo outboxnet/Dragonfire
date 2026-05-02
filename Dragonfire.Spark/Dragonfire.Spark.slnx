@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.Spark.Core/Dragonfire.Spark.Core.csproj" />
+    <Project Path="src/Dragonfire.Spark.Cli/Dragonfire.Spark.Cli.csproj" />
+  </Folder>
+</Solution>
