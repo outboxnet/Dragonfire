@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Demo";
+}
+
+<h1 class="h3 mb-3">Demo endpoints</h1>
+<p class="text-muted">
+    Hit any of the buttons below, then open <a asp-controller="Traces" asp-action="Index">Traces</a>
+    to see the captured inbound + outbound HTTP exchanges.
+</p>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Single outbound call</h5>
+                <p class="card-text text-muted">One third-party request to JSONPlaceholder.</p>
+                <a class="btn btn-primary btn-sm" target="_blank" href="/api/demo/posts/1">GET /api/demo/posts/1</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Two sequential calls</h5>
+                <p class="card-text text-muted">Post then author. Sequence numbers will be 1, 2.</p>
+                <a class="btn btn-primary btn-sm" target="_blank" href="/api/demo/posts/1/full">GET /api/demo/posts/1/full</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Parallel fan-out</h5>
+                <p class="card-text text-muted">Three concurrent third-party calls (<code>Task.WhenAll</code>) — order is preserved via interlocked sequencing.</p>
+                <a class="btn btn-primary btn-sm" target="_blank" href="/api/demo/dashboard/2">GET /api/demo/dashboard/2</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">POST with redaction</h5>
+                <p class="card-text text-muted">Body contains <code>password</code> and <code>apiKey</code> — both are redacted before storage.</p>
+<pre class="body-pre">curl -X POST http://localhost:5080/api/demo/echo \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer secret-token-123" \
+  -d '{"title":"hi","body":"world","password":"hunter2","apiKey":"k-9999"}'</pre>
+            </div>
+        </div>
+    </div>
+</div>

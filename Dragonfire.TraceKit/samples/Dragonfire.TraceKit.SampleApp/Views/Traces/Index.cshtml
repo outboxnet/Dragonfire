@@ -1,0 +1,64 @@
+@model IReadOnlyList<TraceSession>
+@{
+    ViewData["Title"] = "Traces";
+}
+
+<div class="d-flex align-items-center mb-3">
+    <h1 class="h3 mb-0 me-auto">Sessions <span class="text-muted fs-6">(@Model.Count)</span></h1>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+    </a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        No traces captured yet. Run an endpoint from the
+        <a asp-controller="Home" asp-action="Index">Demo</a> page first.
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Started (UTC)</th>
+                    <th>Method</th>
+                    <th>URL</th>
+                    <th class="text-end">Status</th>
+                    <th class="text-end">Outbound</th>
+                    <th class="text-end">Duration</th>
+                    <th>Tenant</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var s in Model)
+                {
+                    var statusClass = s.StatusCode is null ? "text-muted"
+                        : s.StatusCode < 300 ? "status-2xx"
+                        : s.StatusCode < 400 ? "status-3xx"
+                        : s.StatusCode < 500 ? "status-4xx" : "status-5xx";
+                    <tr>
+                        <td><code>@s.StartedAtUtc.ToString("HH:mm:ss.fff")</code></td>
+                        <td><span class="badge bg-secondary">@s.Method</span></td>
+                        <td class="text-truncate" style="max-width: 380px;" title="@s.Url">@s.Url</td>
+                        <td class="text-end fw-semibold @statusClass">@(s.StatusCode?.ToString() ?? "—")</td>
+                        <td class="text-end">@s.OutboundCallCount</td>
+                        <td class="text-end"><code>@((int)s.Duration.TotalMilliseconds) ms</code></td>
+                        <td>@(s.TenantId ?? "—")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary"
+                               asp-action="Details" asp-route-correlationId="@s.CorrelationId">
+                                Open <i class="bi bi-arrow-right-short"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

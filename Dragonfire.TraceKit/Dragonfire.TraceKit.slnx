@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.TraceKit/Dragonfire.TraceKit.csproj" />
+    <Project Path="src/Dragonfire.TraceKit.AspNetCore/Dragonfire.TraceKit.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Dragonfire.TraceKit.SampleApp/Dragonfire.TraceKit.SampleApp.csproj" />
+    <Project Path="samples/Dragonfire.TraceKit.LoadTest/Dragonfire.TraceKit.LoadTest.csproj" />
+  </Folder>
+</Solution>

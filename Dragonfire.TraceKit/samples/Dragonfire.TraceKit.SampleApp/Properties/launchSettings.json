@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Dragonfire.TraceKit.SampleApp": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "",
+      "applicationUrl": "http://localhost:5080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

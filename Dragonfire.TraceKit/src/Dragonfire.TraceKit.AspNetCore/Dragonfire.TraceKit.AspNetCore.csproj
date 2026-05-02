@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.TraceKit.AspNetCore</RootNamespace>
+    <PackageId>Dragonfire.TraceKit.AspNetCore</PackageId>
+    <Description>ASP.NET Core integration for Dragonfire.TraceKit. Adds a non-blocking middleware that captures every inbound API request/response and a DelegatingHandler that auto-attaches to every HttpClient created by IHttpClientFactory, recording outbound third-party calls in the order they occur within the request — even under parallel execution.</Description>
+    <PackageTags>tracing;observability;aspnetcore;httpclient;audit;b2b;middleware;delegatinghandler</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.TraceKit\Dragonfire.TraceKit.csproj" />
+  </ItemGroup>
+</Project>

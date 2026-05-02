@@ -1,0 +1,110 @@
+@model IReadOnlyList<ApiTrace>
+@{
+    ViewData["Title"] = "Trace timeline";
+    var correlationId = ViewData["CorrelationId"] as string;
+    var inbound = Model.FirstOrDefault(t => t.Kind == TraceKind.Inbound);
+}
+
+<a asp-action="Index" class="btn btn-link p-0 mb-2"><i class="bi bi-arrow-left"></i> Back to sessions</a>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-3">
+            <div>
+                <div class="small text-muted">Correlation Id</div>
+                <code>@correlationId</code>
+            </div>
+            @if (inbound is not null)
+            {
+                <div>
+                    <div class="small text-muted">Endpoint</div>
+                    <span class="badge bg-secondary">@inbound.Method</span>
+                    <span>@inbound.Url</span>
+                </div>
+                <div>
+                    <div class="small text-muted">Status</div>
+                    <strong>@(inbound.StatusCode?.ToString() ?? "—")</strong>
+                </div>
+                <div>
+                    <div class="small text-muted">Duration</div>
+                    <code>@((int)inbound.Duration.TotalMilliseconds) ms</code>
+                </div>
+            }
+            <div>
+                <div class="small text-muted">Rows</div>
+                <span class="badge bg-primary-subtle text-primary-emphasis">@Model.Count</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Timeline</h2>
+
+<div class="accordion" id="trace-timeline">
+@foreach (var t in Model)
+{
+    var domId = "row-" + t.TraceId.ToString("N");
+    var kindLabel = t.Kind == TraceKind.Inbound ? "Inbound" : "Outbound · " + (t.OperationName ?? "Default");
+    var rowClass = t.Kind == TraceKind.Inbound ? "trace-row-inbound" : "trace-row-outbound";
+    var statusClass = t.StatusCode is null ? "text-muted"
+        : t.StatusCode < 300 ? "status-2xx"
+        : t.StatusCode < 400 ? "status-3xx"
+        : t.StatusCode < 500 ? "status-4xx" : "status-5xx";
+
+    <div class="accordion-item @rowClass mb-2">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#@domId">
+                <div class="d-flex w-100 align-items-center gap-3">
+                    <span class="badge bg-dark">#@t.Sequence</span>
+                    <span class="text-muted small" style="width: 110px;">@kindLabel</span>
+                    <span class="badge bg-secondary">@t.Method</span>
+                    <span class="text-truncate flex-grow-1" style="min-width:0;">@t.Url</span>
+                    <span class="fw-semibold @statusClass">@(t.StatusCode?.ToString() ?? "ERR")</span>
+                    <code class="text-muted">@((int)t.Duration.TotalMilliseconds) ms</code>
+                </div>
+            </button>
+        </h2>
+        <div id="@domId" class="accordion-collapse collapse" data-bs-parent="#trace-timeline">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6>Request</h6>
+                        @await Html.PartialAsync("_HeadersTable", t.RequestHeaders)
+                        @if (!string.IsNullOrEmpty(t.RequestBody))
+                        {
+                            <pre class="body-pre mt-2">@t.RequestBody</pre>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response</h6>
+                        @await Html.PartialAsync("_HeadersTable", t.ResponseHeaders)
+                        @if (!string.IsNullOrEmpty(t.ResponseBody))
+                        {
+                            <pre class="body-pre mt-2">@t.ResponseBody</pre>
+                        }
+                    </div>
+                </div>
+                @if (t.ExceptionType is not null)
+                {
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <strong>@t.ExceptionType:</strong> @t.ExceptionMessage
+                    </div>
+                }
+                <div class="text-muted small mt-3">
+                    Started <code>@t.StartedAtUtc.ToString("HH:mm:ss.fff")</code> ·
+                    Completed <code>@t.CompletedAtUtc.ToString("HH:mm:ss.fff")</code>
+                    @if (!string.IsNullOrEmpty(t.RequestContentType))
+                    {
+                        <span> · Req-CT <code>@t.RequestContentType</code></span>
+                    }
+                    @if (!string.IsNullOrEmpty(t.ResponseContentType))
+                    {
+                        <span> · Res-CT <code>@t.ResponseContentType</code></span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>

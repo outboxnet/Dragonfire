@@ -1,0 +1,19 @@
+@model IDictionary<string, string>
+@if (Model is { Count: > 0 })
+{
+    <table class="table table-sm table-borderless mb-0 header-table">
+        <tbody>
+        @foreach (var h in Model)
+        {
+            <tr>
+                <td class="text-muted small" style="width: 35%;">@h.Key</td>
+                <td><code class="small">@h.Value</code></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <span class="text-muted small">No headers.</span>
+}
