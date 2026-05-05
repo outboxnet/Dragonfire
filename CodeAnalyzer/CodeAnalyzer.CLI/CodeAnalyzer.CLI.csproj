@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\CodeAnalyzer.Core\CodeAnalyzer.Core.csproj" />
+		<ProjectReference Include="..\CodeAnalyzer.Analyzers\CodeAnalyzer.Analyzers.csproj" />
+		<ProjectReference Include="..\CodeAnalyzer.Git\CodeAnalyzer.Git.csproj" />
+	</ItemGroup>
+</Project>

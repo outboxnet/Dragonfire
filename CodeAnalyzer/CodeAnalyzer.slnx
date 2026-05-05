@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CodeAnalyzer.Analyzers/CodeAnalyzer.Analyzers.csproj" />
+  <Project Path="CodeAnalyzer.CLI/CodeAnalyzer.CLI.csproj" />
+  <Project Path="CodeAnalyzer.Core/CodeAnalyzer.Core.csproj" />
+  <Project Path="CodeAnalyzer.Git/CodeAnalyzer.Git.csproj" />
+</Solution>
