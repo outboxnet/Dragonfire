@@ -8,6 +8,9 @@ An embeddable webhook platform for ASP.NET Core, assembled from three Dragonfire
 | **[Dragonfire.Inbox](../Dragonfire.Inbox)** | Transactional inbox + dedup + handler dispatch for incoming webhooks |
 | **[Dragonfire.TenantContext](../Dragonfire.TenantContext)** | Per-request tenant resolution that auto-tags every published event |
 
+<img width="1915" height="900" alt="WKépernyőkép 2026-05-07 001332" src="https://github.com/user-attachments/assets/0529ca40-38e4-4b21-9c27-61bce453ce4c" />
+
+
 Drop these into any existing ASP.NET Core app and you get:
 
 - **Send outbox events** in the same DB transaction as your domain writes
