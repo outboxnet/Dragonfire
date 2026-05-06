@@ -1,0 +1,100 @@
+@using System.Text.Json
+@model Dragonfire.WebhookPlatform.SampleApp.ViewComponents.InboxRowViewComponent.InboxRowModel
+@{
+    var m = Model.Message;
+    string statusClass = m.Status.ToString() switch
+    {
+        "Processed" => "bg-emerald-100 text-emerald-800",
+        "Failed"    => "bg-red-100 text-red-800",
+        "Pending"   => "bg-amber-100 text-amber-800",
+        "Duplicate" => "bg-slate-200 text-slate-700",
+        _           => "bg-slate-100 text-slate-700"
+    };
+    string PrettyJson(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+        try
+        {
+            using var doc = JsonDocument.Parse(raw);
+            return JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch { return raw; }
+    }
+}
+<details class="bg-white rounded-lg shadow-sm border border-slate-200">
+    <summary class="cursor-pointer px-5 py-3 flex items-center gap-3 hover:bg-slate-50 rounded-lg">
+        <span class="px-2 py-0.5 text-xs rounded-full @statusClass">@m.Status</span>
+        <code class="text-sm font-medium text-slate-900">@m.EventType</code>
+        <span class="text-xs text-slate-500">via <code>@m.ProviderKey</code></span>
+        <span class="text-xs text-slate-500">@m.ReceivedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
+        <span class="ml-auto text-xs text-slate-400">@(Model.Attempts.Count) handler run(s)</span>
+    </summary>
+    <div class="px-5 pb-4 pt-2 border-t border-slate-100 space-y-3">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
+            <div><span class="text-slate-400">Id</span> <code class="text-slate-800">@m.Id</code></div>
+            <div><span class="text-slate-400">Dedup</span> <code class="text-slate-800 break-all">@m.DedupKey</code></div>
+            <div><span class="text-slate-400">SHA-256</span> <code class="text-slate-800 break-all">@m.ContentSha256</code></div>
+            @if (m.ProviderEventId is not null)
+            {
+                <div><span class="text-slate-400">Provider id</span> <code class="text-slate-800">@m.ProviderEventId</code></div>
+            }
+            @if (m.TenantId is not null)
+            {
+                <div><span class="text-slate-400">Tenant</span> <code class="text-slate-800">@m.TenantId</code></div>
+            }
+            @if (m.CorrelationId is not null)
+            {
+                <div><span class="text-slate-400">Correlation</span> <code class="text-slate-800">@m.CorrelationId</code></div>
+            }
+            @if (!string.IsNullOrEmpty(m.LastError))
+            {
+                <div class="col-span-2 text-red-700"><span class="text-slate-400">Last error</span> @m.LastError</div>
+            }
+        </div>
+
+        @if (m.Headers is { Count: > 0 })
+        {
+            <div>
+                <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Headers</p>
+                <pre class="bg-slate-900 text-slate-100 text-xs rounded p-3 overflow-x-auto">@string.Join("\n", m.Headers.Select(h => $"{h.Key}: {h.Value}"))</pre>
+            </div>
+        }
+
+        <div>
+            <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Payload</p>
+            <pre class="bg-slate-900 text-slate-100 text-xs rounded p-3 overflow-x-auto">@PrettyJson(m.Payload)</pre>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Handler attempts</p>
+            @if (Model.Attempts.Count == 0)
+            {
+                <p class="text-xs text-slate-500">None yet — dispatcher hasn't picked this up.</p>
+            }
+            else
+            {
+                <div class="space-y-2">
+                    @foreach (var a in Model.Attempts)
+                    {
+                        var ok = a.Status.ToString() == "Success";
+                        <div class="rounded border @(ok ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50") px-3 py-2 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-full @(ok ? "bg-emerald-200 text-emerald-900" : "bg-red-200 text-red-900")">
+                                    @a.Status
+                                </span>
+                                <span class="text-slate-500">attempt #@a.AttemptNumber</span>
+                                <span class="text-slate-500">@(a.DurationMs)ms</span>
+                                <span class="text-slate-500">@a.AttemptedAt.LocalDateTime.ToString("HH:mm:ss")</span>
+                            </div>
+                            <div class="mt-1"><code class="text-slate-700">@a.HandlerName</code></div>
+                            @if (!string.IsNullOrEmpty(a.ErrorMessage))
+                            {
+                                <div class="mt-1 text-red-700">@a.ErrorMessage</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</details>

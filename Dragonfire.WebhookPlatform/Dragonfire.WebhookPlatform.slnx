@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Dragonfire.WebhookPlatform.SampleApp/Dragonfire.WebhookPlatform.SampleApp.csproj" />
+  </Folder>
+  <Folder Name="/refs/Outbox/">
+    <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Core/Dragonfire.Outbox.Core.csproj" />
+    <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Delivery/Dragonfire.Outbox.Delivery.csproj" />
+    <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.EntityFrameworkCore/Dragonfire.Outbox.EntityFrameworkCore.csproj" />
+    <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Processor/Dragonfire.Outbox.Processor.csproj" />
+  </Folder>
+  <Folder Name="/refs/Inbox/">
+    <Project Path="../Dragonfire.Inbox/src/Dragonfire.Inbox.AspNetCore/Dragonfire.Inbox.AspNetCore.csproj" />
+    <Project Path="../Dragonfire.Inbox/src/Dragonfire.Inbox.Core/Dragonfire.Inbox.Core.csproj" />
+    <Project Path="../Dragonfire.Inbox/src/Dragonfire.Inbox.EntityFrameworkCore/Dragonfire.Inbox.EntityFrameworkCore.csproj" />
+    <Project Path="../Dragonfire.Inbox/src/Dragonfire.Inbox.Processor/Dragonfire.Inbox.Processor.csproj" />
+    <Project Path="../Dragonfire.Inbox/src/Dragonfire.Inbox.Providers/Dragonfire.Inbox.Providers.csproj" />
+  </Folder>
+  <Folder Name="/refs/Tenant/">
+    <Project Path="../Dragonfire.TenantContext/src/Dragonfire.TenantContext/Dragonfire.TenantContext.csproj" />
+    <Project Path="../Dragonfire.TenantContext/src/Dragonfire.TenantContext.AspNetCore/Dragonfire.TenantContext.AspNetCore.csproj" />
+  </Folder>
+</Solution>

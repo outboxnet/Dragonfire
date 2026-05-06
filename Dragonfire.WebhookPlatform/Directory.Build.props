@@ -1,0 +1,11 @@
+<Project>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <PackageId>Dragonfire.WebhookPlatform</PackageId>
+    <Description>Embeddable webhook platform for ASP.NET Core — Outbox + Inbox + TenantContext glued together with a modern dashboard for inspecting outgoing and incoming webhooks.</Description>
+    <PackageTags>webhooks;outbox;inbox;dashboard;multi-tenant</PackageTags>
+  </PropertyGroup>
+
+</Project>

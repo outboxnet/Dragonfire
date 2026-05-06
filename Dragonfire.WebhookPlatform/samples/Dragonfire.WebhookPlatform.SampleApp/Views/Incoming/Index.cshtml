@@ -1,0 +1,34 @@
+@model IncomingListViewModel
+@{
+    ViewData["Title"] = "Incoming";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-semibold text-slate-900">Incoming</h1>
+    <p class="text-sm text-slate-500 mt-1">Most recent 100 inbox messages and their handler runs.</p>
+</div>
+
+@await Component.InvokeAsync("FilterForm", new { filter = Model.Filter, knownEventTypes = Model.KnownEventTypes })
+
+@if (Model.Messages.Count == 0)
+{
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center text-sm text-slate-500">
+        No messages match the current filter.
+    </div>
+}
+else
+{
+    <div class="space-y-2">
+        @foreach (var m in Model.Messages)
+        {
+            var attempts = Model.AttemptsByMessage.TryGetValue(m.Id, out var a)
+                ? a
+                : Array.Empty<InboxHandlerAttempt>();
+            @await Component.InvokeAsync("InboxRow", new
+            {
+                message = m,
+                attempts = attempts
+            })
+        }
+    </div>
+}

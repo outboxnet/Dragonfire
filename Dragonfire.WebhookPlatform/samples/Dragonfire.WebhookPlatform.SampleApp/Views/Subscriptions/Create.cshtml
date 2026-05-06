@@ -1,0 +1,11 @@
+@model SubscriptionFormModel
+@{
+    ViewData["Title"] = "New subscription";
+}
+<div class="mb-6">
+    <h1 class="text-2xl font-semibold text-slate-900">New subscription</h1>
+    <p class="text-sm text-slate-500 mt-1">Add a webhook target. Inactive subscriptions are skipped by the delivery processor.</p>
+</div>
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 max-w-3xl">
+    @await Html.PartialAsync("_Form", Model)
+</div>

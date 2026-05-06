@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Dragonfire.WebhookPlatform.SampleApp</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Dragonfire.Outbox\src\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Outbox\src\Dragonfire.Outbox.Delivery\Dragonfire.Outbox.Delivery.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Outbox\src\Dragonfire.Outbox.EntityFrameworkCore\Dragonfire.Outbox.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Outbox\src\Dragonfire.Outbox.Processor\Dragonfire.Outbox.Processor.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Inbox\src\Dragonfire.Inbox.AspNetCore\Dragonfire.Inbox.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Inbox\src\Dragonfire.Inbox.Core\Dragonfire.Inbox.Core.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Inbox\src\Dragonfire.Inbox.EntityFrameworkCore\Dragonfire.Inbox.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.Inbox\src\Dragonfire.Inbox.Processor\Dragonfire.Inbox.Processor.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.TenantContext\src\Dragonfire.TenantContext\Dragonfire.TenantContext.csproj" />
+    <ProjectReference Include="..\..\..\Dragonfire.TenantContext\src\Dragonfire.TenantContext.AspNetCore\Dragonfire.TenantContext.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

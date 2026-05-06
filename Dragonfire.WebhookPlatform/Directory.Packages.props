@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.23" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.23" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.3.0" />
+  </ItemGroup>
+
+</Project>

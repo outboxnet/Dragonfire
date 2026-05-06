@@ -1,0 +1,19 @@
+/* Make raw JSON / payload blocks readable. */
+pre.payload {
+    font-family: ui-monospace, "SFMono-Regular", "Menlo", "Cascadia Mono", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre;
+    max-height: 360px;
+}
+
+details > summary {
+    cursor: pointer;
+    list-style: none;
+}
+details > summary::-webkit-details-marker { display: none; }

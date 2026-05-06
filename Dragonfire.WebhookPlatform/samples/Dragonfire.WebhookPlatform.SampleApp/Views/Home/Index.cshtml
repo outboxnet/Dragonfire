@@ -1,0 +1,66 @@
+@model OverviewViewModel
+@{
+    ViewData["Title"] = "Overview";
+}
+
+<div class="mb-8">
+    <h1 class="text-2xl font-semibold text-slate-900">Overview</h1>
+    <p class="text-sm text-slate-500 mt-1">Live health of the outbox + inbox pipelines.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    @await Component.InvokeAsync("StatCard", new { label = "Outbox messages", value = Model.OutboxTotal, accent = "orange" })
+    @await Component.InvokeAsync("StatCard", new { label = "Inbox messages",  value = Model.InboxTotal,  accent = "indigo" })
+    @await Component.InvokeAsync("StatCard", new { label = "Delivery attempts", value = Model.DeliveryAttempts, accent = "emerald" })
+    @await Component.InvokeAsync("StatCard", new { label = "Active subscriptions", value = Model.Subscriptions, accent = "slate" })
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <section>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-slate-900">Recent outgoing</h2>
+            <a href="/Outgoing" class="text-xs text-orange-600 hover:underline">view all →</a>
+        </div>
+        <div class="space-y-2">
+            @if (Model.RecentOutgoing.Count == 0)
+            {
+                <p class="text-sm text-slate-500">No outbox messages yet. Use the sidebar to generate some.</p>
+            }
+            else
+            {
+                @foreach (var m in Model.RecentOutgoing)
+                {
+                    <div class="bg-white rounded border border-slate-200 px-4 py-2 text-xs flex items-center gap-3">
+                        <code class="font-medium text-slate-900">@m.EventType</code>
+                        <span class="text-slate-500">@m.Status</span>
+                        <span class="text-slate-400 ml-auto">@m.CreatedAt.LocalDateTime.ToString("HH:mm:ss")</span>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+    <section>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-slate-900">Recent incoming</h2>
+            <a href="/Incoming" class="text-xs text-orange-600 hover:underline">view all →</a>
+        </div>
+        <div class="space-y-2">
+            @if (Model.RecentIncoming.Count == 0)
+            {
+                <p class="text-sm text-slate-500">No inbox messages yet. The first one will arrive once the outbox loops back.</p>
+            }
+            else
+            {
+                @foreach (var m in Model.RecentIncoming)
+                {
+                    <div class="bg-white rounded border border-slate-200 px-4 py-2 text-xs flex items-center gap-3">
+                        <code class="font-medium text-slate-900">@m.EventType</code>
+                        <span class="text-slate-500">via @m.ProviderKey</span>
+                        <span class="text-slate-500">@m.Status</span>
+                        <span class="text-slate-400 ml-auto">@m.ReceivedAt.LocalDateTime.ToString("HH:mm:ss")</span>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+</div>

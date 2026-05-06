@@ -1,0 +1,14 @@
+@model Dragonfire.WebhookPlatform.SampleApp.ViewComponents.StatCardViewComponent.StatCardModel
+@{
+    var accent = Model.Accent switch
+    {
+        "emerald" => "text-emerald-600",
+        "indigo"  => "text-indigo-600",
+        "slate"   => "text-slate-600",
+        _         => "text-orange-600"
+    };
+}
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+    <p class="text-xs uppercase tracking-wide text-slate-500">@Model.Label</p>
+    <p class="mt-2 text-3xl font-semibold @accent">@Model.Value.ToString("N0")</p>
+</div>

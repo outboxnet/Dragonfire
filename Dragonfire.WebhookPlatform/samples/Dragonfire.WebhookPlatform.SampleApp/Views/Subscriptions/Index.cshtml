@@ -1,0 +1,93 @@
+@model IReadOnlyList<WebhookSubscription>
+@{
+    ViewData["Title"] = "Subscriptions";
+}
+
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-semibold text-slate-900">Subscriptions</h1>
+        <p class="text-sm text-slate-500 mt-1">Each row is a webhook target. Outbox messages are delivered to every active subscription whose <code>EventType</code> matches.</p>
+    </div>
+    <a asp-action="Create"
+       class="px-4 py-2 rounded bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium">
+        + New subscription
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+            <tr>
+                <th class="px-4 py-2 text-left">Name / URL</th>
+                <th class="px-4 py-2 text-left">Event</th>
+                <th class="px-4 py-2 text-left">Tenant</th>
+                <th class="px-4 py-2 text-left">Retries / Timeout</th>
+                <th class="px-4 py-2 text-left">Status</th>
+                <th class="px-4 py-2 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+            @foreach (var s in Model)
+            {
+                var name = s.CustomHeaders is { } h && h.TryGetValue("X-Subscription-Name", out var n) ? n : null;
+                <tr>
+                    <td class="px-4 py-3 align-top">
+                        @if (!string.IsNullOrEmpty(name))
+                        {
+                            <div class="font-medium text-slate-900">@name</div>
+                        }
+                        <code class="text-xs text-slate-600 break-all">@s.WebhookUrl</code>
+                    </td>
+                    <td class="px-4 py-3 align-top">
+                        <code class="text-xs">@s.EventType</code>
+                    </td>
+                    <td class="px-4 py-3 align-top">
+                        <code class="text-xs">@(s.TenantId ?? "*")</code>
+                    </td>
+                    <td class="px-4 py-3 align-top text-xs text-slate-600">
+                        @s.MaxRetries × @($"{s.Timeout.TotalSeconds:F0}s")
+                    </td>
+                    <td class="px-4 py-3 align-top">
+                        @if (s.IsActive)
+                        {
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs">Active</span>
+                        }
+                        else
+                        {
+                            <span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-xs">Disabled</span>
+                        }
+                    </td>
+                    <td class="px-4 py-3 align-top text-right">
+                        <div class="inline-flex items-center gap-2">
+                            <a asp-action="Edit" asp-route-id="@s.Id"
+                               class="px-2 py-1 rounded border border-slate-300 hover:bg-slate-50 text-xs text-slate-700">Edit</a>
+                            <form asp-action="ToggleActive" asp-route-id="@s.Id" method="post" class="inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="px-2 py-1 rounded border border-slate-300 hover:bg-slate-50 text-xs text-slate-700">
+                                    @(s.IsActive ? "Disable" : "Enable")
+                                </button>
+                            </form>
+                            <form asp-action="Delete" asp-route-id="@s.Id" method="post" class="inline"
+                                  onsubmit="return confirm('Delete this subscription? This cannot be undone.');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="px-2 py-1 rounded border border-red-300 hover:bg-red-50 text-xs text-red-700">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">
+                        No subscriptions yet. <a asp-action="Create" class="text-orange-600 hover:underline">Create the first one</a>.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
