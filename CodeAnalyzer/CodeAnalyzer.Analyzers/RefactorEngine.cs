@@ -145,6 +145,9 @@ public class RefactorEngine
         "EncapsulateField"        => ApplyEncapsulateField(root, r),
         "IntroduceParameterObject"=> ApplyIntroduceParameterObject(root, r),
         "AddCatchHandler"         => ApplyAddCatchHandler(root, r),
+        "ExtractInterface"        => ApplyExtractInterface(root, r),
+        "ExtractClass"            => ApplyExtractClass(root, r),
+        "ExtractMethod"           => ApplyExtractMethod(root, r),
         _ => throw new NotSupportedException($"Refactor kind '{r.Kind}' is not implemented.")
     };
 
@@ -346,6 +349,286 @@ public class RefactorEngine
         if (newDecl != declaration) newCatch = newCatch.WithDeclaration(newDecl);
 
         return root.ReplaceNode(catchClause, newCatch);
+    }
+
+    // -------------------------------------------------------------------
+    //  ExtractInterface — produces I<ClassName> from public surface.
+    // -------------------------------------------------------------------
+
+    private SyntaxNode ApplyExtractInterface(SyntaxNode root, RefactorSuggestion r)
+    {
+        var className = r.Metadata["class"];
+        var ifaceName = r.Metadata["interfaceName"];
+
+        var classDecl = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .FirstOrDefault(c => c.Identifier.Text == className);
+        if (classDecl == null) return root;
+
+        // Idempotent: skip if interface already exists in this compilation unit.
+        if (root.DescendantNodes().OfType<InterfaceDeclarationSyntax>()
+                .Any(i => i.Identifier.Text == ifaceName))
+            return root;
+
+        // Method signatures.
+        var methodSigs = classDecl.Members.OfType<MethodDeclarationSyntax>()
+            .Where(m => m.Modifiers.Any(SyntaxKind.PublicKeyword) && !m.Modifiers.Any(SyntaxKind.StaticKeyword))
+            .Select(m => SyntaxFactory.MethodDeclaration(m.ReturnType, m.Identifier)
+                .WithParameterList(m.ParameterList.WithoutTrivia())
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)))
+            .Cast<MemberDeclarationSyntax>()
+            .ToList();
+
+        // Property signatures (preserve get/set shape).
+        var propSigs = classDecl.Members.OfType<PropertyDeclarationSyntax>()
+            .Where(p => p.Modifiers.Any(SyntaxKind.PublicKeyword) && !p.Modifiers.Any(SyntaxKind.StaticKeyword))
+            .Select(p =>
+            {
+                var accessors = p.AccessorList?.Accessors
+                    .Select(a => SyntaxFactory.AccessorDeclaration(a.Kind())
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)))
+                    .ToArray()
+                    ?? new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+                return SyntaxFactory.PropertyDeclaration(p.Type, p.Identifier)
+                    .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(accessors)));
+            })
+            .Cast<MemberDeclarationSyntax>()
+            .ToList();
+
+        if (methodSigs.Count == 0 && propSigs.Count == 0) return root;
+
+        var iface = SyntaxFactory.InterfaceDeclaration(ifaceName)
+            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+            .WithMembers(SyntaxFactory.List(methodSigs.Concat(propSigs)));
+
+        // Add `: IClassName` to the class's base list (or create one).
+        var baseType = SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(ifaceName));
+        ClassDeclarationSyntax newClass;
+        if (classDecl.BaseList == null)
+        {
+            newClass = classDecl.WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SingletonSeparatedList<BaseTypeSyntax>(baseType)));
+        }
+        else if (classDecl.BaseList.Types.Any(t => t.Type.ToString() == ifaceName))
+        {
+            newClass = classDecl;
+        }
+        else
+        {
+            newClass = classDecl.WithBaseList(classDecl.BaseList.AddTypes(baseType));
+        }
+
+        var rootWithClass = root.ReplaceNode(classDecl, newClass);
+
+        // Insert interface before class in the same parent container.
+        var classAfter = rootWithClass.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .First(c => c.Identifier.Text == className);
+
+        return InsertSiblingBefore(rootWithClass, classAfter, iface);
+    }
+
+    // -------------------------------------------------------------------
+    //  ExtractClass — moves a cohesive cluster of members to a new class.
+    // -------------------------------------------------------------------
+
+    private SyntaxNode ApplyExtractClass(SyntaxNode root, RefactorSuggestion r)
+    {
+        var sourceClassName = r.Metadata["sourceClass"];
+        var targetClassName = r.Metadata["targetClass"];
+        var fieldName = r.Metadata["field"];
+        var methodNames = r.Metadata["methods"]
+            .Split('|', StringSplitOptions.RemoveEmptyEntries)
+            .ToHashSet();
+
+        var sourceClass = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .FirstOrDefault(c => c.Identifier.Text == sourceClassName);
+        if (sourceClass == null) return root;
+
+        // Idempotent: already extracted.
+        if (root.DescendantNodes().OfType<ClassDeclarationSyntax>().Any(c => c.Identifier.Text == targetClassName))
+            return root;
+
+        var methodsToMove = sourceClass.Members.OfType<MethodDeclarationSyntax>()
+            .Where(m => methodNames.Contains(m.Identifier.Text))
+            .ToList();
+        if (methodsToMove.Count == 0) return root;
+
+        var fieldToMove = sourceClass.Members.OfType<FieldDeclarationSyntax>()
+            .FirstOrDefault(f => f.Declaration.Variables.Any(v => v.Identifier.Text == fieldName));
+
+        // Build the new class.
+        var newClassMembers = new List<MemberDeclarationSyntax>();
+        if (fieldToMove != null)
+        {
+            // Drop the `private` modifier on the moved field if it had one — make it private inside the new class.
+            newClassMembers.Add(fieldToMove);
+        }
+        newClassMembers.AddRange(methodsToMove);
+
+        var newClass = SyntaxFactory.ClassDeclaration(targetClassName)
+            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+            .WithMembers(SyntaxFactory.List(newClassMembers));
+
+        // Build the residual source class: drop moved members, add a backing field for the new instance.
+        var remaining = sourceClass.Members.Where(m =>
+        {
+            if (m is MethodDeclarationSyntax md && methodNames.Contains(md.Identifier.Text)) return false;
+            if (fieldToMove != null && m == fieldToMove) return false;
+            return true;
+        }).ToList();
+
+        var instanceFieldName = "_" + char.ToLowerInvariant(targetClassName[0]) + targetClassName.Substring(1);
+        var instanceField = (MemberDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration(
+            $"private readonly {targetClassName} {instanceFieldName} = new();");
+        if (instanceField != null) remaining.Insert(0, instanceField);
+
+        var todoComment = SyntaxFactory.Comment(
+            $"// TODO: review external call sites — methods {string.Join(", ", methodNames)} were moved into '{targetClassName}'.\n");
+
+        var updatedSource = sourceClass
+            .WithMembers(SyntaxFactory.List(remaining))
+            .WithLeadingTrivia(sourceClass.GetLeadingTrivia().Add(todoComment));
+
+        var rootAfterSource = root.ReplaceNode(sourceClass, updatedSource);
+
+        // Drop the new class as a sibling right after the source.
+        var sourceAfter = rootAfterSource.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .First(c => c.Identifier.Text == sourceClassName);
+
+        return InsertSiblingAfter(rootAfterSource, sourceAfter, newClass);
+    }
+
+    // -------------------------------------------------------------------
+    //  ExtractMethod — moves an inner block into a new private helper.
+    // -------------------------------------------------------------------
+
+    private SyntaxNode ApplyExtractMethod(SyntaxNode root, RefactorSuggestion r)
+    {
+        var methodName = r.Metadata["method"];
+        var ordinal = int.Parse(r.Metadata["ordinal"]);
+        var newName = r.Metadata["newName"];
+
+        var method = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == methodName);
+        if (method?.Body == null) return root;
+
+        var allInnerBlocks = method.Body.DescendantNodes().OfType<BlockSyntax>()
+            .Where(b => b != method.Body).ToList();
+        if (ordinal < 0 || ordinal >= allInnerBlocks.Count) return root;
+        var targetBlock = allInnerBlocks[ordinal];
+        if (targetBlock.Statements.Count < 3) return root;
+
+        // Identify candidate parameter names available at the extraction site:
+        //  - all method parameters
+        //  - locals declared earlier in the method body
+        var paramTypes = method.ParameterList.Parameters
+            .ToDictionary(p => p.Identifier.Text, p => p.Type?.ToString() ?? "object");
+
+        var blockStart = targetBlock.SpanStart;
+        var preLocals = new Dictionary<string, string>();
+        foreach (var local in method.Body.DescendantNodes().OfType<LocalDeclarationStatementSyntax>())
+        {
+            if (local.SpanStart >= blockStart) continue;
+            // Skip if local is *inside* targetBlock (not a real "before" candidate).
+            if (targetBlock.Span.Contains(local.Span)) continue;
+            var declaredType = local.Declaration.Type?.ToString() ?? "var";
+            foreach (var v in local.Declaration.Variables)
+                preLocals[v.Identifier.Text] = declaredType;
+        }
+
+        // Identifier references inside the block.
+        var refs = targetBlock.DescendantNodes().OfType<IdentifierNameSyntax>()
+            .Select(i => i.Identifier.Text)
+            .Distinct()
+            .ToList();
+
+        var paramSpecs = new List<(string type, string name)>();
+        foreach (var name in refs)
+        {
+            if (paramTypes.TryGetValue(name, out var t)) paramSpecs.Add((t, name));
+            else if (preLocals.TryGetValue(name, out var lt))
+            {
+                if (lt == "var") lt = "object"; // lossy without semantic model — flagged by TODO comment below
+                paramSpecs.Add((lt, name));
+            }
+        }
+
+        var helperParamList = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(
+            paramSpecs.Select(p => SyntaxFactory.Parameter(SyntaxFactory.Identifier(p.name))
+                .WithType(SyntaxFactory.ParseTypeName(p.type)))));
+
+        // The helper body is a copy of the block's statements (don't reuse the same node — Roslyn syntax is immutable but parents must be unique).
+        var helperBody = SyntaxFactory.Block(targetBlock.Statements);
+
+        // Optional TODO trivia.
+        var hasVarLocal = paramSpecs.Any(p => preLocals.ContainsKey(p.name) && preLocals[p.name] == "var");
+        var todoTrivia = SyntaxFactory.TriviaList(
+            SyntaxFactory.Comment("// TODO: review parameter passing — extracted from " + methodName +
+                                   (hasVarLocal ? " (some `var` types defaulted to `object`)" : "") + "\n"));
+
+        var helper = SyntaxFactory.MethodDeclaration(
+                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)),
+                newName)
+            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PrivateKeyword)))
+            .WithParameterList(helperParamList)
+            .WithBody(helperBody)
+            .WithLeadingTrivia(todoTrivia);
+
+        // Replace the block's contents with a single call to the helper.
+        var argList = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
+            paramSpecs.Select(p => SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.name)))));
+        var callStmt = SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(newName), argList));
+        var newBlock = targetBlock.WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(callStmt));
+
+        var rootAfterBlock = root.ReplaceNode(targetBlock, newBlock);
+
+        // Insert the helper just after the original method in the containing type.
+        var methodAfter = rootAfterBlock.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .First(m => m.Identifier.Text == methodName);
+        var typeAfter = methodAfter.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+        if (typeAfter == null) return rootAfterBlock;
+
+        var idx = typeAfter.Members.IndexOf(methodAfter);
+        var newMembers = typeAfter.Members.Insert(idx + 1, helper);
+        return rootAfterBlock.ReplaceNode(typeAfter, typeAfter.WithMembers(newMembers));
+    }
+
+    // -------------------------------------------------------------------
+    //  Sibling-insertion helpers (works inside namespace, compilation unit, or outer type).
+    // -------------------------------------------------------------------
+
+    private static SyntaxNode InsertSiblingBefore(SyntaxNode root, MemberDeclarationSyntax anchor, MemberDeclarationSyntax toInsert)
+        => InsertSibling(root, anchor, toInsert, before: true);
+
+    private static SyntaxNode InsertSiblingAfter(SyntaxNode root, MemberDeclarationSyntax anchor, MemberDeclarationSyntax toInsert)
+        => InsertSibling(root, anchor, toInsert, before: false);
+
+    private static SyntaxNode InsertSibling(SyntaxNode root, MemberDeclarationSyntax anchor, MemberDeclarationSyntax toInsert, bool before)
+    {
+        var parent = anchor.Parent;
+        switch (parent)
+        {
+            case BaseNamespaceDeclarationSyntax ns:
+                {
+                    var idx = ns.Members.IndexOf(anchor);
+                    var newMembers = ns.Members.Insert(before ? idx : idx + 1, toInsert);
+                    return root.ReplaceNode(ns, ns.WithMembers(newMembers));
+                }
+            case CompilationUnitSyntax cu:
+                {
+                    var idx = cu.Members.IndexOf(anchor);
+                    var newMembers = cu.Members.Insert(before ? idx : idx + 1, toInsert);
+                    return root.ReplaceNode(cu, cu.WithMembers(newMembers));
+                }
+            case TypeDeclarationSyntax outer:
+                {
+                    var idx = outer.Members.IndexOf(anchor);
+                    var newMembers = outer.Members.Insert(before ? idx : idx + 1, toInsert);
+                    return root.ReplaceNode(outer, outer.WithMembers(newMembers));
+                }
+            default:
+                return root;
+        }
     }
 
     /// <summary>Rewrites bare identifier references for a known set of names into member accesses on a target.</summary>

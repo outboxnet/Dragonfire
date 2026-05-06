@@ -52,6 +52,7 @@ public class CodeAnalyzerEngine
                 result.Issues.AddRange(AnalyzeNullReferences(root));
                 result.Issues.AddRange(AnalyzeMethodParameters(root, filePath));
                 result.Issues.AddRange(AnalyzeMethodLength(root, filePath));
+                result.Issues.AddRange(AnalyzeMethodComplexity(root));
                 result.Issues.AddRange(AnalyzeMagicNumbers(root, filePath));
                 result.Issues.AddRange(AnalyzePublicMutableFields(root, filePath));
                 result.Issues.AddRange(AnalyzeEmptyCatchBlocks(root, filePath));
@@ -73,7 +74,7 @@ public class CodeAnalyzerEngine
                 };
             }
 
-            // Collect refactors from issues for easy lookup.
+            // Collect refactors from issues for easy lookup (deduped by Id).
             result.Refactors = result.Issues
                 .Where(i => i.Suggestion != null)
                 .Select(i => i.Suggestion)
@@ -117,14 +118,62 @@ public class CodeAnalyzerEngine
 
                 if (methods > 10 || (methods + properties) > 15)
                 {
-                    issues.Add(new Issue
+                    var className = classDecl.Identifier.Text;
+
+                    // Issue 1 — SRP, with Extract Interface as the primary refactor.
+                    var interfaceName = $"I{className}";
+                    var hasPublicSurface = classDecl.Members.OfType<MethodDeclarationSyntax>()
+                        .Any(m => m.Modifiers.Any(SyntaxKind.PublicKeyword) && !m.Modifiers.Any(SyntaxKind.StaticKeyword))
+                        || classDecl.Members.OfType<PropertyDeclarationSyntax>()
+                            .Any(p => p.Modifiers.Any(SyntaxKind.PublicKeyword) && !p.Modifiers.Any(SyntaxKind.StaticKeyword));
+
+                    var srpIssue = new Issue
                     {
                         Type = "SOLID",
                         Severity = methods > 15 ? "Error" : "Warning",
                         RuleName = "Single Responsibility",
-                        Message = $"Class '{classDecl.Identifier}' may violate SRP. Too many members ({methods} methods, {properties} properties)",
+                        Message = $"Class '{className}' may violate SRP. Too many members ({methods} methods, {properties} properties). Consider extracting an interface to define its public contract.",
                         LineNumber = GetLineNumber(classDecl)
-                    });
+                    };
+                    if (hasPublicSurface)
+                    {
+                        srpIssue.Suggestion = new RefactorSuggestion
+                        {
+                            Id = MakeId("ExtractInterface", className),
+                            Kind = "ExtractInterface",
+                            Title = $"Extract interface '{interfaceName}' from '{className}'",
+                            Description = "Creates an interface from all public instance methods/properties and makes the class implement it.",
+                            LineNumber = GetLineNumber(classDecl),
+                            TargetSymbol = className,
+                            Metadata =
+                            {
+                                ["class"] = className,
+                                ["interfaceName"] = interfaceName
+                            }
+                        };
+                    }
+                    issues.Add(srpIssue);
+
+                    // Issue 2 — only when the class hides a cluster of *private* helpers around a private field.
+                    // That's the "hidden code that inflates complexity" pattern; safe to relocate without breaking callers.
+                    var extractClassSuggestion = TryBuildExtractClassSuggestion(classDecl);
+                    if (extractClassSuggestion != null)
+                    {
+                        var helperCount = extractClassSuggestion.Metadata.TryGetValue("methods", out var ms)
+                            ? ms.Split('|', StringSplitOptions.RemoveEmptyEntries).Length
+                            : 0;
+                        var fieldName = extractClassSuggestion.Metadata.TryGetValue("field", out var f) ? f : "?";
+                        var hiddenIssue = new Issue
+                        {
+                            Type = "SOLID",
+                            Severity = "Warning",
+                            RuleName = "Hidden Cluster",
+                            Message = $"Class '{className}' contains {helperCount} private helper methods clustered around field '{fieldName}'. They inflate this class's cyclomatic complexity and could live on their own.",
+                            LineNumber = GetLineNumber(classDecl),
+                            Suggestion = extractClassSuggestion
+                        };
+                        issues.Add(hiddenIssue);
+                    }
                 }
             }
 
@@ -347,15 +396,43 @@ public class CodeAnalyzerEngine
             var lines = span.EndLinePosition.Line - span.StartLinePosition.Line;
             if (lines <= max) continue;
 
-            issues.Add(new Issue
+            var lengthIssue = new Issue
             {
                 Type = "Length",
                 Severity = lines > max * 2 ? "Error" : "Warning",
                 RuleName = "Long Method",
                 Message = $"Method '{method.Identifier}' is {lines} lines long (max recommended: {max}). Consider extracting cohesive blocks into helper methods.",
                 LineNumber = GetLineNumber(method)
-                // No automated extraction — semantic; we just suggest manually.
-            });
+            };
+            var extract = TryBuildExtractMethodSuggestion(method);
+            if (extract != null) lengthIssue.Suggestions.Add(extract);
+            issues.Add(lengthIssue);
+        }
+        return issues;
+    }
+
+    /// <summary>Methods with cyclomatic complexity above threshold → suggest "Extract Method".</summary>
+    private List<Issue> AnalyzeMethodComplexity(SyntaxNode root)
+    {
+        var issues = new List<Issue>();
+        var threshold = Options.MaxMethodComplexity;
+        foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+        {
+            if (method.Body == null) continue;
+            var complexity = CalculateCyclomaticComplexity(method);
+            if (complexity <= threshold) continue;
+
+            var issue = new Issue
+            {
+                Type = "Complexity",
+                Severity = complexity > threshold * 2 ? "Error" : "Warning",
+                RuleName = "Method Too Complex",
+                Message = $"Method '{method.Identifier}' has cyclomatic complexity {complexity} (max recommended: {threshold}). Extract a sub-block to lower it.",
+                LineNumber = GetLineNumber(method)
+            };
+            var extract = TryBuildExtractMethodSuggestion(method);
+            if (extract != null) issue.Suggestions.Add(extract);
+            issues.Add(issue);
         }
         return issues;
     }
@@ -404,28 +481,29 @@ public class CodeAnalyzerEngine
             {
                 var name = v.Identifier.Text;
                 var refactorId = MakeId("EncapsulateField", name);
-                issues.Add(new Issue
+                var fieldIssue = new Issue
                 {
                     Type = "Field",
                     Severity = "Warning",
                     RuleName = "Public Mutable Field",
                     Message = $"Public field '{name}' should be a property to preserve encapsulation.",
                     LineNumber = GetLineNumber(field),
-                    Suggestion = new RefactorSuggestion
+                };
+                fieldIssue.Suggestions.Add(new RefactorSuggestion
+                {
+                    Id = refactorId,
+                    Kind = "EncapsulateField",
+                    Title = $"Convert public field '{name}' to auto-property",
+                    Description = "Replaces the field declaration with `public T Name { get; set; }`.",
+                    LineNumber = GetLineNumber(field),
+                    TargetSymbol = name,
+                    Metadata =
                     {
-                        Id = refactorId,
-                        Kind = "EncapsulateField",
-                        Title = $"Convert public field '{name}' to auto-property",
-                        Description = "Replaces the field declaration with `public T Name { get; set; }`.",
-                        LineNumber = GetLineNumber(field),
-                        TargetSymbol = name,
-                        Metadata =
-                        {
-                            ["field"] = name,
-                            ["type"] = field.Declaration.Type.ToString()
-                        }
+                        ["field"] = name,
+                        ["type"] = field.Declaration.Type.ToString()
                     }
                 });
+                issues.Add(fieldIssue);
             }
         }
         return issues;
@@ -449,28 +527,29 @@ public class CodeAnalyzerEngine
             var ordinal = perMethod[methodName]++;
 
             var refactorId = MakeId("AddCatchHandler", methodName, ordinal.ToString());
-            issues.Add(new Issue
+            var catchIssue = new Issue
             {
                 Type = "Catch",
                 Severity = "Warning",
                 RuleName = "Empty Catch Block",
                 Message = "Catch block is empty — exceptions are silently swallowed.",
                 LineNumber = GetLineNumber(catchClause),
-                Suggestion = new RefactorSuggestion
+            };
+            catchIssue.Suggestions.Add(new RefactorSuggestion
+            {
+                Id = refactorId,
+                Kind = "AddCatchHandler",
+                Title = "Insert minimal logging into empty catch",
+                Description = "Adds a Debug.WriteLine + TODO comment so exceptions stop being silenced.",
+                LineNumber = GetLineNumber(catchClause),
+                TargetSymbol = methodName,
+                Metadata =
                 {
-                    Id = refactorId,
-                    Kind = "AddCatchHandler",
-                    Title = "Insert minimal logging into empty catch",
-                    Description = "Adds a Debug.WriteLine + TODO comment so exceptions stop being silenced.",
-                    LineNumber = GetLineNumber(catchClause),
-                    TargetSymbol = methodName,
-                    Metadata =
-                    {
-                        ["method"] = methodName,
-                        ["ordinal"] = ordinal.ToString()
-                    }
+                    ["method"] = methodName,
+                    ["ordinal"] = ordinal.ToString()
                 }
             });
+            issues.Add(catchIssue);
         }
         return issues;
     }
@@ -673,6 +752,115 @@ public class CodeAnalyzerEngine
 
     private static string Capitalize(string s) =>
         string.IsNullOrEmpty(s) ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);
+
+    // ---------------------------------------------------------------------
+    //  Heuristic builders for "thinking" refactors (ExtractClass, ExtractMethod).
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Looks for a cohesive cluster within the class: a private field that's used by a
+    /// minority subset of methods. Returns a suggestion to extract that field + those
+    /// methods into a new class. Returns null if no clean cluster can be found.
+    /// </summary>
+    private RefactorSuggestion TryBuildExtractClassSuggestion(ClassDeclarationSyntax classDecl)
+    {
+        var className = classDecl.Identifier.Text;
+        var methods = classDecl.Members.OfType<MethodDeclarationSyntax>().ToList();
+        if (methods.Count < 4) return null;
+
+        // Private fields (explicit `private` or no modifier — implicit private).
+        var privateFields = classDecl.Members.OfType<FieldDeclarationSyntax>()
+            .Where(f => f.Modifiers.Any(SyntaxKind.PrivateKeyword) ||
+                        !f.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.InternalKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)))
+            .SelectMany(f => f.Declaration.Variables.Select(v => v.Identifier.Text))
+            .ToList();
+        if (privateFields.Count == 0) return null;
+
+        // For each private field, the methods that mention it.
+        (string field, List<MethodDeclarationSyntax> users) best = (null, null);
+        foreach (var field in privateFields)
+        {
+            var users = methods.Where(m =>
+                m.DescendantNodes().OfType<IdentifierNameSyntax>()
+                    .Any(id => id.Identifier.Text == field)).ToList();
+
+            // We want a "minority": >=2 methods but <= half. That's a real sub-responsibility.
+            if (users.Count >= 2 && users.Count <= methods.Count / 2)
+            {
+                if (best.users == null || users.Count > best.users.Count)
+                    best = (field, users);
+            }
+        }
+
+        if (best.field == null) return null;
+
+        var targetClassName = ToPascalCase(best.field) + "Service";
+        var methodNames = best.users.Select(m => m.Identifier.Text).ToList();
+
+        return new RefactorSuggestion
+        {
+            Id = MakeId("ExtractClass", className, best.field),
+            Kind = "ExtractClass",
+            Title = $"Extract '{targetClassName}' from '{className}' (around field '{best.field}')",
+            Description = $"Moves field '{best.field}' and methods [{string.Join(", ", methodNames)}] to a new '{targetClassName}' class. Original class keeps a reference; review external call sites.",
+            LineNumber = GetLineNumber(classDecl),
+            TargetSymbol = className,
+            Metadata =
+            {
+                ["sourceClass"] = className,
+                ["targetClass"] = targetClassName,
+                ["field"] = best.field,
+                ["methods"] = string.Join("|", methodNames)
+            }
+        };
+    }
+
+    /// <summary>
+    /// Picks the largest extractable inner block (≥3 statements) inside a method body.
+    /// The refactor will move it into a new private helper. Captures method parameters
+    /// and pre-block locals as helper parameters (best-effort, no semantic model).
+    /// </summary>
+    private RefactorSuggestion TryBuildExtractMethodSuggestion(MethodDeclarationSyntax method)
+    {
+        if (method.Body == null) return null;
+
+        var inner = method.Body.DescendantNodes().OfType<BlockSyntax>()
+            .Where(b => b != method.Body && b.Statements.Count >= 3)
+            .ToList();
+        if (inner.Count == 0) return null;
+
+        // Pre-order index across all inner blocks (whether or not they qualify) so
+        // analyzer + rewriter agree on the same anchor.
+        var allInnerBlocks = method.Body.DescendantNodes().OfType<BlockSyntax>()
+            .Where(b => b != method.Body)
+            .ToList();
+        var bestBlock = inner.OrderByDescending(b => b.Statements.Count).First();
+        var ordinal = allInnerBlocks.IndexOf(bestBlock);
+
+        var newName = $"{method.Identifier.Text}Step";
+        return new RefactorSuggestion
+        {
+            Id = MakeId("ExtractMethod", method.Identifier.Text, ordinal.ToString()),
+            Kind = "ExtractMethod",
+            Title = $"Extract a {bestBlock.Statements.Count}-statement block of '{method.Identifier}' into '{newName}'",
+            Description = "Moves the largest qualifying inner block into a private helper. Review parameter passing for any reassigned values.",
+            LineNumber = bestBlock.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
+            TargetSymbol = method.Identifier.Text,
+            Metadata =
+            {
+                ["method"] = method.Identifier.Text,
+                ["ordinal"] = ordinal.ToString(),
+                ["newName"] = newName
+            }
+        };
+    }
+
+    private static string ToPascalCase(string fieldName)
+    {
+        var trimmed = fieldName.TrimStart('_');
+        if (string.IsNullOrEmpty(trimmed)) return "Extracted";
+        return char.ToUpperInvariant(trimmed[0]) + trimmed.Substring(1);
+    }
 }
 
 /// <summary>Tunable thresholds for the analyzer.</summary>
@@ -681,4 +869,5 @@ public class AnalyzerOptions
     public int MaxParameters { get; set; } = 5;
     public int MaxMethodLines { get; set; } = 40;
     public int MaxNestingDepth { get; set; } = 3;
+    public int MaxMethodComplexity { get; set; } = 10;
 }
