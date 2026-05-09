@@ -57,8 +57,8 @@ By writing the outbox message in the *same database transaction* as your domain 
 | `Dragonfire.Outbox.EntityFrameworkCore` | EF Core + SQL Server stores and publisher |
 | `Dragonfire.Outbox.SqlServer` | Direct ADO.NET SQL Server stores and publisher (no EF dependency) |
 | `Dragonfire.Outbox.Processor` | Background hosted service for outbox processing |
-| `Dragonfire.Outbox.Delivery` | HTTP webhook delivery with HMAC-SHA256 signing and retry |
-| `Dragonfire.Outbox.AzureStorageQueue` | Azure Storage Queue publisher for queue-mediated processing |
+| `Dragonfire.Outbox.Connectors.Webhook` | HTTP webhook delivery with HMAC-SHA256 signing and retry |
+| `Dragonfire.Outbox.Connectors.AzureStorageQueue` | Azure Storage Queue publisher for queue-mediated processing |
 | `Dragonfire.Outbox.AzureFunctions` | Azure Functions timer trigger for serverless processing |
 
 ## Getting Started
@@ -70,7 +70,7 @@ By writing the outbox message in the *same database transaction* as your domain 
 dotnet add package Dragonfire.Outbox.Core
 dotnet add package Dragonfire.Outbox.EntityFrameworkCore
 dotnet add package Dragonfire.Outbox.Processor
-dotnet add package Dragonfire.Outbox.Delivery
+dotnet add package Dragonfire.Outbox.Connectors.Webhook
 ```
 
 **Direct ADO.NET / Dapper app:**
@@ -78,7 +78,7 @@ dotnet add package Dragonfire.Outbox.Delivery
 dotnet add package Dragonfire.Outbox.Core
 dotnet add package Dragonfire.Outbox.SqlServer
 dotnet add package Dragonfire.Outbox.Processor
-dotnet add package Dragonfire.Outbox.Delivery
+dotnet add package Dragonfire.Outbox.Connectors.Webhook
 ```
 
 **Azure Functions (serverless):**
@@ -86,7 +86,7 @@ dotnet add package Dragonfire.Outbox.Delivery
 dotnet add package Dragonfire.Outbox.Core
 dotnet add package Dragonfire.Outbox.EntityFrameworkCore  # or Dragonfire.Outbox.SqlServer
 dotnet add package Dragonfire.Outbox.AzureFunctions
-dotnet add package Dragonfire.Outbox.Delivery
+dotnet add package Dragonfire.Outbox.Connectors.Webhook
 ```
 
 ### Step 2: Configure services
@@ -880,12 +880,12 @@ Dragonfire.Outbox/
 │   ├── Dragonfire.Outbox.EntityFrameworkCore/     # EF Core + SQL Server stores & publisher
 │   ├── Dragonfire.Outbox.SqlServer/               # Direct ADO.NET SQL Server stores & publisher
 │   ├── Dragonfire.Outbox.Processor/               # Background processing hosted service
-│   ├── Dragonfire.Outbox.Delivery/                # HTTP webhook delivery + HMAC + retry
-│   ├── Dragonfire.Outbox.AzureStorageQueue/       # Azure Storage Queue transport
+│   ├── Dragonfire.Outbox.Connectors.Webhook/                # HTTP webhook delivery + HMAC + retry
+│   ├── Dragonfire.Outbox.Connectors.AzureStorageQueue/       # Azure Storage Queue transport
 │   └── Dragonfire.Outbox.AzureFunctions/          # Azure Functions timer trigger
 ├── tests/
 │   ├── Dragonfire.Outbox.Core.Tests/
-│   ├── Dragonfire.Outbox.Delivery.Tests/
+│   ├── Dragonfire.Outbox.Connectors.Webhook.Tests/
 │   └── Dragonfire.Outbox.Processor.Tests/
 ├── Dragonfire.Outbox.SampleApp/                   # Full ASP.NET Core sample application
 ├── Directory.Build.props                  # Shared build + NuGet package properties

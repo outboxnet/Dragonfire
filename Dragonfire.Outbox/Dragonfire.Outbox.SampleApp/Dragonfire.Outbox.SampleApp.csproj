@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Dragonfire.Outbox.AzureStorageQueue\Dragonfire.Outbox.AzureStorageQueue.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.Connectors.AzureStorageQueue\Dragonfire.Outbox.Connectors.AzureStorageQueue.csproj" />
     <ProjectReference Include="..\src\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
-    <ProjectReference Include="..\src\Dragonfire.Outbox.Delivery\Dragonfire.Outbox.Delivery.csproj" />
+    <ProjectReference Include="..\src\Dragonfire.Outbox.Connectors.Webhook\Dragonfire.Outbox.Connectors.Webhook.csproj" />
     <ProjectReference Include="..\src\Dragonfire.Outbox.EntityFrameworkCore\Dragonfire.Outbox.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\src\Dragonfire.Outbox.Processor\Dragonfire.Outbox.Processor.csproj" />
     <ProjectReference Include="..\src\Dragonfire.Outbox.SqlServer\Dragonfire.Outbox.SqlServer.csproj" />

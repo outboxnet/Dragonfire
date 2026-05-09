@@ -4,7 +4,7 @@
   </Folder>
   <Folder Name="/refs/Outbox/">
     <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Core/Dragonfire.Outbox.Core.csproj" />
-    <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Delivery/Dragonfire.Outbox.Delivery.csproj" />
+    <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Connectors.Webhook/Dragonfire.Outbox.Connectors.Webhook.csproj" />
     <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.EntityFrameworkCore/Dragonfire.Outbox.EntityFrameworkCore.csproj" />
     <Project Path="../Dragonfire.Outbox/src/Dragonfire.Outbox.Processor/Dragonfire.Outbox.Processor.csproj" />
   </Folder>

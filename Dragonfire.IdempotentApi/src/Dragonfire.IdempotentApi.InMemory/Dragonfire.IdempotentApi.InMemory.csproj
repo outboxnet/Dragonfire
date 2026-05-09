@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.IdempotentApi.InMemory</RootNamespace>
+    <Description>Process-local in-memory idempotency store for Dragonfire.IdempotentApi (testing/dev/single-instance scenarios).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.IdempotentApi.Core\Dragonfire.IdempotentApi.Core.csproj" />
+  </ItemGroup>
+</Project>

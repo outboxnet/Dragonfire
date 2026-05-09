@@ -11,7 +11,7 @@ using Dragonfire.Outbox.Extensions;
 using Dragonfire.Outbox.Interfaces;
 using Dragonfire.Outbox.Options;
 using Dragonfire.Outbox.Processor.Extensions;
-using Dragonfire.Outbox.Delivery.Extensions;
+using Dragonfire.Outbox.Connectors.Webhook.Extensions;
 
 namespace Dragonfire.Outbox.LoadTests;
 

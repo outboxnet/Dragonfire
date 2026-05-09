@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Dragonfire.Outbox.AzureStorageQueueSample</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Azure.Storage.Queues" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Dragonfire.Outbox.Connectors.AzureStorageQueue\Dragonfire.Outbox.Connectors.AzureStorageQueue.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Outbox.EntityFrameworkCore\Dragonfire.Outbox.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Outbox.Processor\Dragonfire.Outbox.Processor.csproj" />
+  </ItemGroup>
+
+</Project>

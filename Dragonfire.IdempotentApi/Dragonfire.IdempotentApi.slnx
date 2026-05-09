@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dragonfire.IdempotentApi.Core/Dragonfire.IdempotentApi.Core.csproj" />
+    <Project Path="src/Dragonfire.IdempotentApi.AspNetCore/Dragonfire.IdempotentApi.AspNetCore.csproj" />
+    <Project Path="src/Dragonfire.IdempotentApi.InMemory/Dragonfire.IdempotentApi.InMemory.csproj" />
+    <Project Path="src/Dragonfire.IdempotentApi.EntityFrameworkCore/Dragonfire.IdempotentApi.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Dragonfire.IdempotentApi.SampleApp/Dragonfire.IdempotentApi.SampleApp.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dragonfire.IdempotentApi.Tests/Dragonfire.IdempotentApi.Tests.csproj" />
+  </Folder>
+</Solution>

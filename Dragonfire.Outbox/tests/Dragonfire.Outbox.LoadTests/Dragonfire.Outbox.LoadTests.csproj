@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dragonfire.Outbox.Core\Dragonfire.Outbox.Core.csproj" />
-    <ProjectReference Include="..\..\src\Dragonfire.Outbox.Delivery\Dragonfire.Outbox.Delivery.csproj" />
+    <ProjectReference Include="..\..\src\Dragonfire.Outbox.Connectors.Webhook\Dragonfire.Outbox.Connectors.Webhook.csproj" />
     <ProjectReference Include="..\..\src\Dragonfire.Outbox.EntityFrameworkCore\Dragonfire.Outbox.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\Dragonfire.Outbox.Processor\Dragonfire.Outbox.Processor.csproj" />
   </ItemGroup>

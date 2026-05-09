@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Dragonfire.IdempotentApi.EntityFrameworkCore</RootNamespace>
+    <Description>EF Core idempotency store for Dragonfire.IdempotentApi. Plug into any DbContext via ApplyIdempotentApiConfigurations.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dragonfire.IdempotentApi.Core\Dragonfire.IdempotentApi.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+  </ItemGroup>
+</Project>

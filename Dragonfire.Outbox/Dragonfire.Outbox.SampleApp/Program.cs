@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Dragonfire.Outbox.SampleApp.Data;
 using Dragonfire.Outbox.EntityFrameworkCore.Extensions;
 using Dragonfire.Outbox.Processor.Extensions;
-using Dragonfire.Outbox.Delivery.Extensions;
+using Dragonfire.Outbox.Connectors.Webhook.Extensions;
 
 namespace Dragonfire.Outbox.SampleApp
 {

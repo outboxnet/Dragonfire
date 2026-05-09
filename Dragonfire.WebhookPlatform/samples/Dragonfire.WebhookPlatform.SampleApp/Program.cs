@@ -3,7 +3,7 @@ using Dragonfire.Inbox.EntityFrameworkCore;
 using Dragonfire.Inbox.EntityFrameworkCore.Extensions;
 using Dragonfire.Inbox.Extensions;
 using Dragonfire.Inbox.Processor.Extensions;
-using Dragonfire.Outbox.Delivery.Extensions;
+using Dragonfire.Outbox.Connectors.Webhook.Extensions;
 using Dragonfire.Outbox.EntityFrameworkCore;
 using Dragonfire.Outbox.EntityFrameworkCore.Extensions;
 using Dragonfire.Outbox.Extensions;
